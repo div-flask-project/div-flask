@@ -27,6 +27,8 @@ def create_app():
     else:
         migrate.init_app(app, db)
 
+    from . import models
+
     @app.route('/')
     def index():
         return "flask team project!!"
