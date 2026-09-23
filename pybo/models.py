@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 import enum
+import uuid
 from pybo import db
 
 class User(db.Model):
@@ -22,7 +23,7 @@ class User(db.Model):
     likes = db.relationship('ProductLike', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-        
+
 class RegionEnum(str, enum.Enum):
     SEOUL_GYEONGGI = "서울/경기"
     JEONLA = "전라"
@@ -55,7 +56,61 @@ class TourProduct(db.Model):
     likes = db.relationship('ProductLike', backref='product', lazy='dynamic', cascade='all, delete-orphan')
     order_items = db.relationship('OrderItem', backref='product', lazy='dynamic')
     #cart_items = db.relationship('CartItem', backref='product', lazy='dynamic')
+    def get_discounted_price(self, is_member=False):
+        """회원인 경우 할인율이 적용된 가격을 반환, 비회원은 정가 반환"""
+        if is_member:
+            return int(self.original_price * (1 - self.member_discount_rate))
+        return self.original_price
 
+    def get_discount_amount(self, is_member=False):
+        """회원 할인 금액 반환"""
+        if is_member:
+            return self.original_price - self.get_discounted_price(True)
+        return 0
+
+    def get_average_rating(self):
+        """상품 평점 평균 계산"""
+        review_list = self.reviews.all()
+        if not review_list:
+            return 0.0
+        return round(sum(r.rating for r in review_list) / len(review_list), 1)
+
+    def is_liked_by(self, user):
+        """특정 사용자가 이미 추천했는지 여부"""
+        if not user or not user.is_authenticated:
+            return False
+        return self.likes.filter_by(user_id=user.id).first() is not None
+
+    def get_image_list(self):
+        """관광 상품의 다중 이미지 URL 목록 반환 (없을 경우 기본 image_url 또는 기본 이미지 반환)"""
+        if self.image_urls:
+            try:
+                import json
+                urls = json.loads(self.image_urls)
+                if isinstance(urls, list) and len(urls) > 0:
+                    return urls
+            except Exception:
+                urls = [u.strip() for u in self.image_urls.splitlines() if u.strip()]
+                if urls:
+                    return urls
+        if self.image_url:
+            return [self.image_url]
+        return ['/static/img/default-tour.jpg']
+
+    def set_image_list(self, urls):
+        """이미지 URL 목록을 JSON으로 직렬화하여 저장하고 대표 이미지 동기화"""
+        import json
+        if isinstance(urls, list):
+            self.image_urls = json.dumps(urls, ensure_ascii=False)
+            if urls:
+                self.image_url = urls[0]
+        elif isinstance(urls, str):
+            self.image_urls = urls
+            self.image_url = urls
+
+    def __repr__(self):
+        return f"<TourProduct {self.name} ({self.region})>"
+    
 class ProductLike(db.Model):
     __tablename__ = 'product_likes'
     __table_args__ = (
@@ -95,6 +150,13 @@ class Order(db.Model):
     discount_amount = db.Column(db.Integer, default=0)
     #final_amount = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(20), default='COMPLETED') # PENDING, COMPLETED, CANCELLED
+    
+    # 약관 및 개인정보 동의 항목
+    agree_special = db.Column(db.Boolean, default=True, nullable=False)     # 국내여행 특별약관 [필수]
+    agree_privacy = db.Column(db.Boolean, default=True, nullable=False)     # 개인정보 제3자 제공동의 [필수]
+    agree_sensitive = db.Column(db.Boolean, default=True, nullable=False)   # 민감정보 수집 및 이용 동의 [필수]
+    agree_location = db.Column(db.Boolean, default=False, nullable=False)   # 위치 정보 이용 동의 [선택]
+    
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
@@ -102,6 +164,16 @@ class Order(db.Model):
     #accommodations = db.relationship('OrderAccommodation', backref='order', lazy='dynamic', cascade='all, delete-orphan')
     payment = db.relationship('Payment', backref='order', uselist=False, cascade='all, delete-orphan')
 
+    @classmethod
+    def generate_order_no(cls):
+        now_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
+        rand_str = uuid.uuid4().hex[:6].upper()
+        return f"ORD-{now_str}-{rand_str}"
+
+    @property
+    def final_amount(self):
+        return (self.original_amount or 0) - (self.discount_amount or 0)
+    
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
 
