@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}길마중 - 오늘, 더 특별한 여행{% endblock %}
+
+{% block content %}
+
+<!-- 1. 화면 전체를 꽉 채우는 와이드 배너 영역 (가로 100%) -->
+<div class="wide-banner-container">
+    <section class="main-banner-full">
+        <!-- 배경 이미지와 글자 사이를 부드럽게 만들어주는 암전 오버레이 레이어 -->
+        <div class="banner-overlay"></div>
+
+        <!-- 이미지 위에 떠 있는 실제 텍스트 및 조작 버튼 콘텐츠 -->
+        <div class="banner-content-wrap">
+            <div class="banner-text">
+                <h2>계절의 끝<br>겨울 여행</h2>
+                <p>남은 연차로 떠나보는<br>겨울 추천 여행</p>
+                <div class="banner-arrows">〈 1 / 8 〉</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- 2. 하부 콘텐츠 통합 박스 (헤더 라인에 맞춰 1100px 중앙 정렬 고정) -->
+<div class="container">
+
+    <!-- [테마별/지역별 여행 카테고리] -->
+    <section class="region-category">
+        <div class="tab-buttons">
+            <button type="button" class="tab-btn active">지역별 여행 정보</button>
+            <button type="button" class="tab-btn">테마별 여행 정보</button>
+        </div>
+        <div class="icon-list">
+            <div class="icon-item"><div class="circle-img"></div><span>수도권</span></div>
+            <div class="icon-item"><div class="circle-img"></div><span>강원권</span></div>
+            <div class="icon-item"><div class="circle-img"></div><span>충청권</span></div>
+            <div class="icon-item"><div class="circle-img"></div><span>경상권</span></div>
+            <div class="icon-item"><div class="circle-img"></div><span>전라권</span></div>
+            <div class="icon-item"><div class="circle-img"></div><span>제주도</span></div>
+        </div>
+        <div class="category-product-wrapper">
+            <div class="product-grid-4">
+                <!-- 사각 카드 1 -->
+                <div class="prod-card">
+                    <div class="prod-img-box"></div>
+                    <div class="prod-text-box">
+                        <span class="prod-tag">패키지</span>
+                        <h4 class="prod-title">[인기폭발] 제주 봄빛 가득 에코 투어 3일</h4>
+                        <p class="prod-price">299,000원 ~</p>
+                    </div>
+                </div>
+                <!-- 사각 카드 2 -->
+                <div class="prod-card">
+                    <div class="prod-img-box"></div>
+                    <div class="prod-text-box">
+                        <span class="prod-tag">자유여행</span>
+                        <h4 class="prod-title">[감성숙소포함] 강원 힐링 스테이&카페 패스 2일</h4>
+                        <p class="prod-price">125,000원 ~</p>
+                    </div>
+                </div>
+                <!-- 사각 카드 3 -->
+                <div class="prod-card">
+                    <div class="prod-img-box"></div>
+                    <div class="prod-text-box">
+                        <span class="prod-tag">엑티비티</span>
+                        <h4 class="prod-title">단독 프라이빗 충청 글램핑 & 바베큐 스페셜</h4>
+                        <p class="prod-price">189,000원 ~</p>
+                    </div>
+                </div>
+                <!-- 사각 카드 4 -->
+                <div class="prod-card">
+                    <div class="prod-img-box"></div>
+                    <div class="prod-text-box">
+                        <span class="prod-tag">호캉스</span>
+                        <h4 class="prod-title">[특가재오픈] 경주 한옥 풀빌라 럭셔리 초이스</h4>
+                        <p class="prod-price">340,000원 ~</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 💡 전체 상품을 더 확인하기 위한 넓은 더보기 버튼 -->
+            <div class="more-btn-wrap">
+                <button type="button" class="btn-content-more">지역별 여행 정보 보러가기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- [MD 타임딜 구역] -->
+    <section class="time-deal">
+        <h3>⚡ MD 타임딜</h3>
+        <p class="subtitle">오늘의 특별 코스! 날마다 새로운 핫딜 라인업</p>
+
+        <div class="deal-container">
+            <!-- 좌측 대형 메인 특가 카드 -->
+            <div class="main-deal-card">
+                <div class="sub-img" style="width: 45%; height: 100%; background-color: #ddd;"></div>
+                <div class="deal-info">
+                    <div class="deal-info-top">
+                        <span class="timer">⏰ 22일 19:17:28 남았습니다.</span>
+                        <h4>[아시아나항공] 호주 시드니 | 멜버른 6/7일</h4>
+                    </div>
+                    <p class="price">1,640,000원 ~</p>
+                </div>
+            </div>
+
+            <!-- 우측 소형 특가 카드 리스트 -->
+            <div class="sub-deal-list">
+                <div class="sub-card">
+                    <div class="sub-img" style="width: 120px; height: 100%; background-color: #eee;"></div>
+                    <div class="sub-card-text">
+                        <p class="title">[아시아나] 다낭/호이안/바나힐 4/5일</p>
+                        <p class="price">629,000원 ~</p>
+                    </div>
+                </div>
+                <div class="sub-card">
+                    <div class="sub-img" style="width: 120px; height: 100%; background-color: #eee;"></div>
+                    <div class="sub-card-text">
+                        <p class="title">[동반자 시크릿할인] 북해도 온천 4일</p>
+                        <p class="price">1,020,000원 ~</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- [여행 후기 블러 구역] -->
+    <section class="travel-reviews">
+        <h3>✍️ 여행후기</h3>
+        <div class="review-wrapper">
+            <div class="review-grid blurred">
+                <div class="review-card"><div class="thumb"></div><p>환상에서 현실이 되는 여행</p></div>
+                <div class="review-card"><div class="thumb"></div><p>쉽게 말하지 않는 사진 꿀팁</p></div>
+                <div class="review-card"><div class="thumb"></div><p>구석구석 국내여행</p></div>
+                <div class="review-card"><div class="thumb"></div><p>기억에 남는 해외여행</p></div>
+                <div class="review-card"><div class="thumb"></div><p>겨울 바다 명소 베스트</p></div>
+            </div>
+            <div class="auth-overlay">
+                <p>회원 가입 후 여행 후기를 확인해보세요.</p>
+                <button type="button">회원가입 / 로그인</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- [공지사항 및 고객센터 영역] -->
+    <section class="info-footer-box-wrap">
+        <div class="info-footer-inside">
+            <!-- 좌측 공지사항 -->
+            <div class="notice-box">
+                <h4>공지사항</h4>
+                <ul>
+                    <li><a href="#">[안내] 푸켓/치앙마이/방콕/싱가포르 패키지 상품...</a></li>
+                    <li><a href="#">★ 이번 주 히트다 히트 상품 특가전 ★</a></li>
+                    <li><a href="#">[11월~1월 출발 고객] 후기 이벤트 당첨자 발표</a></li>
+                </ul>
+            </div>
+
+            <!-- 우측 고객센터 -->
+            <div class="cs-box">
+                <h4>고객센터</h4>
+                <p class="phone">1577-1233</p>
+                <p class="time">운영시간 | 09:00 ~ 18:00 (점심시간 12:00 ~ 13:00)<br>토/일 및 공휴일 휴무</p>
+            </div>
+        </div>
+    </section>
+
+</div> <!-- .container 끝 -->
+
+{% endblock %}
