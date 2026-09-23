@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹사이트 후기창 샘플</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .review-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        /* 후기 헤더 영역 */
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rating-avg {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff9900;
+        }
+
+        .stars-outer {
+            color: #ccc;
+            font-size: 20px;
+        }
+
+        /* 후기 리스트 영역 */
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .review-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reviewer-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #444;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .item-stars {
+            color: #ff9900;
+            font-size: 14px;
+        }
+
+        .review-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            word-break: break-all;
+        }
+
+        /* 후기 작성 버튼 (옵션) */
+        .write-btn {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .write-btn:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="review-container">
+        <!-- 후기 헤더 -->
+        <div class="review-header">
+            <div>
+                <h2 class="review-title">고객 후기 (1,245)</h2>
+                <div class="review-stats">
+                    <span class="rating-avg">4.8</span>
+                    <span class="stars-outer">★★★★★</span>
+                </div>
+            </div>
+            <button class="write-btn">후기 작성하기</button>
+        </div>
+
+        <!-- 후기 리스트 -->
+        <div class="review-list">
+            <!-- 후기 1 -->
+            <div class="review-item">
+                <div class="review-meta">
+                    <div class="reviewer-info">
+                        <span class="reviewer-name">김*민</span>
+                        <span class="review-date">2026.09.20</span>
+                    </div>
+                    <div class="item-stars">★★★★★</div>
+                </div>
+                <p class="review-content">
+                   "가이드 준비하는 한국인인 제게도 한국을 이해할수있는 기회였습니다"
+                </p>
+            </div>
+
+            <!-- 후기 2 -->
+            <div class="review-item">
+                <div class="review-meta">
+                    <div class="reviewer-info">
+                        <span class="reviewer-name">이*우</span>
+                        <span class="review-date">2026.09.18</span>
+                    </div>
+                    <div class="item-stars">★★★★☆</div>
+                </div>
+                <p class="review-content">
+                    "패키지 상품 아주좋아요
+                    돈쓴게 아깝지 않았어요
+                    한국을 이해할수있었어요"
+
+                </p>
+            </div>
+
+            <!-- 후기 3 -->
+            <div class="review-item">
+                <div class="review-meta">
+                    <div class="reviewer-info">
+                        <span class="reviewer-name">eli**ce</span>
+                        <span class="review-date">2026.09.15</span>
+                    </div>
+                    <div class="item-stars">★★★★★</div>
+                </div>
+                <p class="review-content">
+                    Here is a realistic, copy-pasteable review written from the perspective of a foreign tourist who purchased a virtual travel package of South Korea.
+                    자동번역:한국 여행 패키지를 통해 정말 놀라운 경험을 했습니다! 실제로 비행기를 타지 않고도 서울과 부산의 활기찬 에너지를 그대로 느낄 수 있는 최고의 방법이었습니다.고화질의 360도 가상현실(VR) 영상 덕분에 마치 제가 진짜로 경복궁의 궁궐 마당을 걷고 있는 듯한 기분이 들었습니다. 가이드분의 설명도 매우 유익했고, 한국의 역사와 문화에 대한 흥미로운 이야기들을 많이 배울 수 있었습니다. 특히 패키지에 포함된 라이브 요리 클래스가 가장 마음에 들었는데, 집에서 직접 완벽한 비빔밥을 만들어 볼 수 있어서 정말 즐거웠습니다.실제 여행을 대체할 수는 없겠지만, 한국 여행을 계획하고 있거나 집에서 안전하게 한국을 경험하고 싶은 모든 분께 이 패키지를 강력히 추천합니다. 돈이 전혀 아깝지 않은 최고의 경험이었습니다!
+
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
