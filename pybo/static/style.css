@@ -1,0 +1,760 @@
+/* ==========================================================================
+   1. 기본 초기화 및 전체 레이아웃 (배너만 와이드 & 나머지 1100px 고정)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: #212529;
+    overflow-x: hidden;
+}
+
+.container, .header-container, .footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+section {
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #F6F4EE;
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   2. 상단 헤더 영역 (1100px 내부에서 가운데 정렬)
+   ========================================================================== */
+.site-header {
+    width: 100%;
+    background-color: #faf8f5;
+    border-bottom: 1px solid #F6F4EE;
+}
+
+.header-container {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.logo-circle {
+    width: 18px;
+    height: 18px;
+    background-color: #A64C4D;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.logo {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #212529;
+    letter-spacing: -0.5px;
+}
+
+.slogan {
+    font-size: 0.75rem;
+    color: #999999;
+    margin-left: 5px;
+}
+
+.header-right-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex: 1;
+}
+
+.utility-menu {
+    display: flex;
+    gap: 18px;
+    font-size: 0.8rem;
+}
+
+.utility-menu a {
+    text-decoration: none;
+    color: #212529;
+    font-weight: 500;
+}
+
+.nav-search-line {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 35px;
+    width: 100%;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: #2B2D42;
+    font-size: 1.05rem;
+    font-weight: bold;
+    letter-spacing: -0.3px;
+}
+
+.nav-item .badge {
+    background-color: #007bff;
+    color: #ffffff;
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    vertical-align: super;
+}
+
+.search-box-wrap {
+    width: 280px;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #999999;
+    border-radius: 20px;
+    padding: 2px 5px;
+    flex-shrink: 0;
+}
+
+.header-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 15px;
+    background: transparent;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    color: #212529;
+}
+
+.header-search-input::placeholder {
+    color: #999999;
+}
+
+.header-search-btn {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    padding: 0 10px;
+    cursor: pointer;
+    color: #212529;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* ==========================================================================
+   3. 📌 중앙 슬라이드 배너 영역 (이미지 내부 글자 배치 일체형 스타일)
+   ========================================================================== */
+.wide-banner-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 40px 0 !important;
+    padding: 0 !important;
+}
+
+.main-banner-full {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    background-image: url('./img/image2.jpg');
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.main-banner-full::before {
+    display: none !important;
+}
+
+.banner-content-wrap {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1100px;
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+}
+
+.banner-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 150px 100px;
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    max-width: 450px;
+}
+
+.banner-text h2 {
+    font-size: 2.5rem;
+    color: #ffffff;
+    line-height: 1.35;
+    margin-bottom: 12px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.banner-text p {
+    font-size: 1.05rem;
+    color: #e9ecef;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.banner-arrows {
+    margin-top: 25px;
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    align-self: flex-start;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   4. 하부 콘텐츠 영역 스타일 (HTML 연동 및 가로 정렬 강제 구현)
+   ========================================================================== */
+.region-category {
+    text-align: center;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.tab-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.tab-buttons .tab-btn {
+    padding: 10px 28px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.tab-buttons .tab-btn.active {
+    background-color: #1D3557;
+    color: #ffffff;
+    border: 1px solid #1D3557;
+    box-shadow: 0 4px 10px #E6F2FF;
+}
+
+.tab-buttons .tab-btn:not(.active) {
+    background-color: #F6F4EE;
+    color: #999999;
+    border: 1px solid #F6F4EE;
+}
+
+.tab-buttons .tab-btn:not(.active):hover {
+    background-color: #F6F4EE;
+    color: #212529;
+}
+.icon-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 50px;
+}
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+.circle-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #F8F5F0, #FAF8F5);
+    margin-bottom: 8px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 6px #F6F4EE;
+}
+.icon-item span {
+    font-size: 0.85rem;
+    color: #2B2D42;
+}
+/* ==========================================================================
+   4-1. 카테고리 하부 4분할 사각 콘텐츠 카드 및 더보기 스타일
+   ========================================================================== */
+.category-product-wrapper {
+    width: 100%;
+    margin-top: 40px;
+    text-align: left;
+}
+
+.product-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+.prod-card {
+    background-color: #ffffff;
+    border: 1px solid #F6F4EE;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px #F6F4EE;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.prod-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px #4A7C8F;
+}
+
+.prod-img-box {
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(135deg, #F8F5F0, #FAF8F5);
+}
+
+.prod-text-box {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.prod-tag {
+    font-size: 0.72rem;
+    font-weight: bold;
+    color: #E76F5F;
+    background-color: #FEE1E8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+.prod-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #212529;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.prod-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #212529;
+    margin-top: 5px;
+}
+
+.more-btn-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.btn-content-more {
+    padding: 12px 100px;
+    background-color: #4A7C8F;
+    color: #fff;
+    border: 1px solid #F6F4EE;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px #F6F4EE;
+}
+
+.btn-content-more:hover {
+    background-color: #E0AA3E;
+    color: #fff;
+    border-color: #F6F4EE;
+}
+
+.time-deal h3 {
+    font-size: 1.3rem;
+    color: #E76F5F;
+    margin-bottom: 5px;
+}
+.time-deal .subtitle {
+    font-size: 0.9rem;
+    color: #999999;
+    margin-bottom: 20px;
+}
+.deal-container {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    width: 100%;
+}
+.main-deal-card {
+    flex: 1.4;
+    display: flex;
+    border: 1px solid #F6F4EE;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #FAF8F5;
+}
+.deal-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+}
+.timer {
+    background-color: #A64C4D;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.deal-info h4 {
+    font-size: 1.1rem;
+    color: #212529
+}
+.deal-info .price {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #E76F5F;
+    text-align: right;
+}
+
+.sub-deal-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.sub-card {
+    display: flex;
+    border: 1px solid #F6F4EE;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    height: 110px;
+}
+.sub-card-text {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+.sub-card .title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2B2D42;
+}
+.sub-card .price {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #E76F5F;
+}
+
+.travel-reviews{
+    width: 100%;
+    height: 300px;
+}
+.review-wrapper {
+    position: relative;
+    height: 100%;
+}
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+.review-grid.blurred {
+    filter: blur(4px);
+    height: 100%;
+}
+.review-card {
+    border: 1px solid #F6F4EE;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 100%;
+}
+.review-card .thumb {
+    width: 100%;
+    height: 200px;
+    background-color: #F6F4EE;
+}
+.review-card p {
+    padding: 10px;
+    font-size: 0.8rem;
+    color: #212529;
+}
+.auth-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #2B2D42;
+    opacity: 0.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.auth-overlay p {
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.auth-overlay button {
+    padding: 8px 20px;
+    background: #fff;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   5. 하단 정보 영역 (공지사항 박스 가공 & 푸터 구분선 최적화)
+   ========================================================================== */
+
+.info-footer-box-wrap {
+    width: 100%;
+    border: 1px solid #FFFFDD;
+    border-radius: 8px;
+    background-color: #E6F2FF; /
+    margin-bottom: 50px;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.info-footer-inside {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.notice-box {
+    flex: 1.6;
+    padding: 30px;
+    border-right: 1px solid #FFFFDD;
+}
+
+.notice-box h4 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #212529;
+    margin-bottom: 18px;
+}
+
+.notice-box ul {
+    list-style: none;
+}
+
+.notice-box li {
+    margin-bottom: 12px;
+}
+
+.notice-box li:last-child {
+    margin-bottom: 0;
+}
+
+.notice-box a {
+    text-decoration: none;
+    color: #2B2D42;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.notice-box a:hover {
+    color: #E76F5F;
+    text-decoration: underline;
+}
+
+.cs-box {
+    flex: 1;
+    padding: 30px;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+.cs-box h4 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #212529;
+    margin-bottom: 12px;
+}
+
+.cs-box class .phone {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #E76F5F;
+    margin-bottom: 8px;
+}
+
+.cs-box .time {
+    font-size: 0.8rem;
+    color: #2B2D42;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   6. 📌 회사 세부 정보 푸터 (가로 구분선 적용)
+   ========================================================================== */
+
+.site-footer {
+    width: 100%;
+    background-color: #faf8f5;
+    border-top: 1px solid #F6F4EE;
+    padding: 40px 0;
+    margin-top: 20px;
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-links {
+    font-size: 0.82rem;
+    color: #1D3557;
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #212529;
+}
+
+.footer-links a.bold-text {
+    font-weight: bold;
+    color: #212529;
+}
+
+.footer-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 25px;
+}
+
+.company-info {
+    flex: 2.5;
+    font-size: 0.72rem;
+    color: #2B2D42;
+    line-height: 1.7;
+}
+
+.company-info p {
+    margin-bottom: 5px;
+}
+
+.company-info span {
+    margin-right: 12px;
+}
+
+.btn-check-info {
+    color: #2B2D42;
+    text-decoration: none;
+    margin-right: 12px;
+}
+
+.cs-phone-line {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #212529;
+}
+
+.cs-phone-line .highlight {
+    font-size: 0.85rem;
+    color: #212529;
+    margin-left: 2px;
+}
+
+.escrow-info {
+    flex: 1;
+    font-size: 0.7rem;
+    color: #999999;
+    border-left: 1px solid #e9ecef;
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+.escrow-info h5 {
+    font-size: 0.75rem;
+    color: #212529;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.btn-escrow {
+    display: inline-block;
+    margin-top: 6px;
+    color: #2B2D42;
+    text-decoration: underline;
+}
+
+.footer-notice {
+    border-top: 1px solid #FAF8F5;
+    padding-top: 15px;
+    margin-bottom: 25px;
+}
+
+.footer-notice ul {
+    list-style: none;
+}
+
+.footer-notice li {
+    font-size: 0.68rem;
+    color: #1E3A5F;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.footer-copyright {
+    font-size: 0.72rem;
+    color: #212529;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}

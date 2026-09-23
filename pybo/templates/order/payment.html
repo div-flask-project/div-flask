@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제하기 - {{ product.name }}</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #10b981;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-gray: #f8fafc;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .checkout-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .checkout-layout { grid-template-columns: 1fr; }
+    }
+
+    .card-section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .card-section h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 상품 정보 */
+    .product-summary-box {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      background: var(--bg-gray);
+      border-radius: 8px;
+    }
+    .product-thumb {
+      width: 100px;
+      height: 75px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .product-info h4 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* 여행객 테이블 */
+    .traveler-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .traveler-table th {
+      background: var(--bg-gray);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .traveler-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .badge-rep {
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    /* 결제 수단 선택 */
+    .payment-methods-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .payment-methods-grid { grid-template-columns: 1fr; }
+    }
+    .pay-method-card {
+      position: relative;
+      cursor: pointer;
+    }
+    .pay-method-card input {
+      position: absolute;
+      opacity: 0;
+    }
+    .method-box {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.15s ease;
+      background: #ffffff;
+    }
+    .method-icon {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .method-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .pay-method-card input:checked + .method-box {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* 영수증 사이드바 */
+    .receipt-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+      position: sticky;
+      top: 20px;
+    }
+    .receipt-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .receipt-row.discount {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    .receipt-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 16px 0;
+    }
+    .receipt-row.total {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+    .receipt-row.total .amount {
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    .btn-pay-complete {
+      width: 100%;
+      background: var(--success);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.25);
+      transition: background 0.15s, transform 0.05s;
+    }
+    .btn-pay-complete:hover {
+      background: #059669;
+    }
+    .btn-back-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .btn-back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container page-content">
+  <div class="page-header">
+    <h1>결제 진행</h1>
+    <p>예약 정보 및 여행객 명단을 확인하신 후 결제 수단을 선택해 결제를 완료해주세요.</p>
+  </div>
+
+  <div class="checkout-layout">
+    <div class="checkout-main">
+      
+      <!-- 1. 예약 상품 정보 -->
+      <div class="card-section">
+        <h3>1. 예약 상품 정보</h3>
+        <div class="product-summary-box">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-thumb" onerror="this.src='/static/img/default-tour.jpg'">
+          <div class="product-info">
+            <h4>{{ product.name }}</h4>
+            <p class="text-muted" style="font-size: 13px;">권역: {{ product.region }} | 예약 인원: <strong>{{ headcount }}명</strong></p>
+            <p class="text-muted" style="font-size: 13px;">예약자: {{ reserver_name }} ({{ reserver_phone }})</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 여행객 명단 확인 -->
+      <div class="card-section">
+        <h3>2. 탑승 및 여행객 명단 (총 {{ headcount }}명)</h3>
+        <table class="traveler-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">번호</th>
+              <th>성명</th>
+              <th style="width: 80px;">성별</th>
+              <th>연락처</th>
+              <th>생년월일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in travelers %}
+              <tr>
+                <td>{{ t.index }}</td>
+                <td>
+                  <strong>{{ t.name }}</strong>
+                  {% if t.index == 1 %}
+                    <span class="badge-rep">대표</span>
+                  {% endif %}
+                </td>
+                <td>{{ t.gender }}</td>
+                <td>{{ t.phone }}</td>
+                <td>{{ t.birth }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. 약관 동의 확인 -->
+      <div class="card-section">
+        <h3>3. 약관 및 개인정보 동의 확인</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px;">
+          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 국내여행 특별약관 [동의]</span>
+          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 개인정보 제3자 제공 [동의]</span>
+          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 민감정보 수집 및 이용 [동의]</span>
+          {% if agree_location %}
+            <span style="background: #eff6ff; color: #059669; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 위치 정보 이용 [동의]</span>
+          {% else %}
+            <span style="background: #f8fafc; color: #94a3b8; padding: 6px 12px; border-radius: 6px;">- 위치 정보 이용 [미동의]</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- 4. 결제 수단 선택 -->
+      <div class="card-section">
+        <h3>4. 결제 수단 선택</h3>
+        <form id="paymentForm" action="{{ url_for('order.pay_complete') }}" method="POST">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <input type="hidden" name="headcount" value="{{ headcount }}">
+          <input type="hidden" name="reserver_name" value="{{ reserver_name }}">
+          <input type="hidden" name="reserver_phone" value="{{ reserver_phone }}">
+          <input type="hidden" name="reserver_email" value="{{ reserver_email }}">
+          <input type="hidden" name="travelers_json" value="{{ travelers_json }}">
+          <input type="hidden" name="agree_special" value="{{ '1' if agree_special else '0' }}">
+          <input type="hidden" name="agree_privacy" value="{{ '1' if agree_privacy else '0' }}">
+          <input type="hidden" name="agree_sensitive" value="{{ '1' if agree_sensitive else '0' }}">
+          <input type="hidden" name="agree_location" value="{{ '1' if agree_location else '0' }}">
+
+          <div class="payment-methods-grid">
+            <label class="pay-method-card">
+              <input type="radio" name="payment_method" value="CARD" checked>
+              <div class="method-box">
+                <span class="method-icon">💳</span>
+                <span class="method-name">신용/체크카드</span>
+              </div>
+            </label>
+
+            <label class="pay-method-card">
+              <input type="radio" name="payment_method" value="EASY_PAY">
+              <div class="method-box">
+                <span class="method-icon">📱</span>
+                <span class="method-name">간편결제 (카카오/네이버)</span>
+              </div>
+            </label>
+
+            <label class="pay-method-card">
+              <input type="radio" name="payment_method" value="BANK_TRANSFER">
+              <div class="method-box">
+                <span class="method-icon">🏦</span>
+                <span class="method-name">실시간 계좌이체</span>
+              </div>
+            </label>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- 우측 영수증 -->
+    <div class="checkout-sidebar">
+      <div class="receipt-card">
+        <h3>최종 결제 금액</h3>
+
+        <div class="receipt-row">
+          <span>정상 상품 금액 ({{ headcount }}명)</span>
+          <span>{{ "{:,}".format(total_original) }}원</span>
+        </div>
+
+        {% if is_member %}
+          <div class="receipt-row discount">
+            <span>회원 특별 할인 ({{ (product.member_discount_rate * 100)|int }}%)</span>
+            <span>- {{ "{:,}".format(total_discount) }}원</span>
+          </div>
+        {% else %}
+          <div class="receipt-row">
+            <span class="text-muted">회원 할인 (비회원 정가)</span>
+            <span class="text-muted">0원</span>
+          </div>
+        {% endif %}
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-row total">
+          <span>총 결제 금액</span>
+          <span class="amount">{{ "{:,}".format(total_final) }}원</span>
+        </div>
+
+        <button type="submit" form="paymentForm" class="btn-pay-complete">
+          {{ "{:,}".format(total_final) }}원 결제 완료하기
+        </button>
+
+        <a href="{{ url_for('order.reserve', product_id=product.id, headcount=headcount) }}" class="btn-back-link">
+          &lt; 예약 정보 수정하기
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+

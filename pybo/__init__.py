@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -17,6 +18,7 @@ db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 migrate = Migrate()
 
 def create_app():
+
     app = Flask(__name__)
     app.config.from_object(config)
 
@@ -29,11 +31,18 @@ def create_app():
 
     from . import models
 
-    @app.route('/')
-    def index():
-        return "flask team project!!"
+    from .views import order_views
+    app.register_blueprint(order_views.bp)
 
-    @app.route('/hj')
-    def hj():
-        return render_template('hj.html')
+    from .views import main_views
+    app.register_blueprint(main_views.bp)
+
+    @app.route('/main_product')
+    def main_product():
+        return render_template('product/main_product.html')
+
+    @app.route('/sub_product')
+    def sub_product():
+        return render_template('product/sub_product.html')
+
     return app
