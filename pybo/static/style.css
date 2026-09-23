@@ -410,88 +410,213 @@ section {
     border-color: #F6F4EE;
 }
 
-.time-deal h3 {
-    font-size: 1.3rem;
-    color: #E76F5F;
-    margin-bottom: 5px;
+/* ==========================================================================
+   ⏱️ 타임딜 영역 전체 리스타일링 (핑크빛 스킨 & 완전한 카드 분할)
+   ========================================================================== */
+.time-deal {
+    background-color: rgba(231, 111, 95, 0.1) ;
+    padding: 50px 30px ;
+    border-radius: 16px;
+    border: none !important;
 }
+
+.time-deal .deal-header h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #212529;
+}
+
 .time-deal .subtitle {
     font-size: 0.9rem;
-    color: #999999;
-    margin-bottom: 20px;
+    color: #2B2D42;
+    margin-top: 6px;
+    margin-bottom: 30px;
 }
-.deal-container {
-    display: flex;
-    flex-direction: row;
-    gap: 25px;
-    width: 100%;
+
+.time-deal .deal-container {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 30px;
 }
+
 .main-deal-card {
-    flex: 1.4;
-    display: flex;
-    border: 1px solid #F6F4EE;
-    border-radius: 8px;
+    background-color: #ffffff;
+    border-radius: 12px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px #F6F4EE;
+}
+
+.main-img-area {
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 15px;
     background-color: #FAF8F5;
 }
-.deal-info {
+.badge-group {
+    display: flex;
+    gap: 6px;
+}
+.badge {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #ffffff;
+    padding: 5px 9px;
+    border-radius: 4px;
+}
+.badge.blue { background-color: #1E3A5F; }
+.badge.green { background-color: #F6F4EE; }
+.badge.black { background-color: #A64C4D; }
+.badge.red { background-color: #3D7D66; }
+.badge.navy { background-color: #4A7C8F; }
+.badge.orange { background-color: #E0AA3E; }
+
+.main-deal-card .deal-info {
+    padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.timer-banner {
+    background-color: #E0AA3E;
+    color: #ffffff;
+    padding: 10px 24px;
+    border-radius: 25px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.timer-banner .time-text {
+    letter-spacing: 0.3px;
+}
+
+.main-deal-card .product-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #212529;
+    margin-bottom: 12px;
+}
+
+.hashtags {
+    font-size: 0.85rem;
+    color: #999999;
+    margin-bottom: 8px;
+}
+
+.product-desc {
+    font-size: 0.9rem;
+    color: #999999;
+    margin-bottom: 25px;
+}
+
+.main-deal-card .price-line {
+    margin-top: auto;
+    text-align: right;
+    font-size: 1rem;
+    color: #2B2D42;
+    font-weight: bold;
+}
+
+.main-deal-card .price-line .price {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: #E76F5F;
+}
+
+.sub-deal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sub-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    height: calc(50% - 10px);
+    box-shadow: 0 4px 20px #FAF8F5;
+}
+
+.sub-img-area {
+    width: 40%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 12px;
+    background-color: #FAF8F5;
+}
+
+.sub-badges {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.d-day-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: #E9C46A;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+.sub-card-text {
+    width: 60%;
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    flex: 1;
 }
-.timer {
-    background-color: #A64C4D;
-    color: #fff;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    display: inline-block;
-    margin-bottom: 10px;
+
+.sub-card-text .title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #2B2D42;
+    line-height: 1.4;
 }
-.deal-info h4 {
-    font-size: 1.1rem;
-    color: #212529
+
+.d-day-inline {
+    background-color: #E76F5F;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 4px;
 }
-.deal-info .price {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #E76F5F;
+
+.sub-price-line {
     text-align: right;
 }
 
-.sub-deal-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.sub-card-text .price {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #DE3E41;
 }
-.sub-card {
-    display: flex;
-    border: 1px solid #F6F4EE;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    height: 110px;
-}
-.sub-card-text {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-}
-.sub-card .title {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #2B2D42;
-}
-.sub-card .price {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #E76F5F;
+
+@media (max-width: 991px) {
+    .time-deal .deal-container {
+        grid-template-columns: 1fr;
+    }
+    .sub-card {
+        height: 160px;
+    }
 }
 
 .travel-reviews{
