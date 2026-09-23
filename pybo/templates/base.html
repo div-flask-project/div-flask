@@ -1,10 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{% block title %}길마중 - 오늘, 더 특별한 여행{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
+    <header class="site-header">
+        <div class="header-container">
+
+            <div class="logo-area">
+                <h1 class="logo">🟠길마중</h1>
+                <span class="slogan">오늘, 더 특별한 여행</span>
+            </div>
+
+            <!-- 우측 영역 (1층 유틸과 2층 메뉴+검색창이 모두 포함됨) -->
+            <div class="header-right-block">
+
+                <!-- 1층: 미니 유틸리티 메뉴 -->
+                <div class="utility-menu">
+                    <a href="#">로그인</a>
+                    <a href="#">고객센터</a>
+                    <a href="#">🌐 한국어 ▾</a>
+                </div> <!-- 닫는 태그 누락 오류 해결 -->
+
+                <!-- 2층: 메뉴 리스트와 검색창을 가로로 정렬하는 라인 -->
+                <div class="nav-search-line">
+                    <!-- 메인 내비게이션 바 -->
+                    <nav class="main-nav">
+                        <div class="nav-links">
+                            <div class="nav-item"><a href="#">여행 ▾</a></div>
+                            <div class="nav-item"><a href="#">추천 <span class="badge">N</span> ▾</a></div>
+                            <div class="nav-item"><a href="#">후기</a></div>
+                            <div class="nav-item"><a href="#">QnA</a></div>
+                        </div>
+                    </nav>
+
+                    <div class="search-box-wrap">
+                        <input type="text" placeholder="어디로 떠나고 싶으세요?" class="header-search-input">
+                        <button type="button" class="header-search-btn">🔎</button>
+                    </div>
+                </div>
+
+            </div> <!-- .header-right-block을 여기서 완전히 닫아줍니다. -->
+        </div>
+    </header>
+
+    <!-- 본문 콘텐츠 영역 -->
+    {% block content %}
+    {% endblock %}
+
+<footer class="site-footer">
+        <div class="footer-container">
+
+            <div class="footer-links">
+                <a href="#">회사소개</a> |
+                <a href="#">이용약관</a> |
+                <a href="#" class="bold-text">개인정보처리방침</a> |
+                <a href="#">여행약관</a> |
+                <a href="#">해외여행자보험</a> |
+                <a href="#">마케팅제휴</a> |
+                <a href="#">공식인증예약센터 검색</a>
+            </div>
+
+            <div class="footer-body">
+                <div class="company-info">
+                    <p>
+                        <span>(주)길마중투어</span>
+                        <span>대표이사 : 홍길동</span>
+                        <span>주소 : 경기 수원시 팔달구 권광로 146 벽산그랜드코아 401호 </span>
+                    </p>
+                    <p>
+                        <span>사업자등록번호 : 102-81-39440</span>
+                        <a href="#" class="btn-check-info">[사업자정보확인]</a>
+                        <span>통신판매업신고번호 : 영통01-1806호</span>
+                        <span>관광사업자 등록번호 : 제1993-000006호</span>
+                        <span>등록관청 : 경기도 수원시 영통구청</span>
+                    </p>
+                    <p>
+                        <span>개인정보 보호책임자 : 전준형</span>
+                        <span>영업보증재단 15억 1천만원 가입 | 기획여행보증재재 7억원 가입</span>
+                        <span>팩스 : 02-734-0392</span>
+                        <span>이메일 : help@gilmajungtour.com</span>
+                    </p>
+                    <p class="cs-phone-line">
+                        <span>📞 고객센터 <strong class="highlight">1577-1233</strong></span>
+                        <span>✈️ 해외항공권문의 <strong class="highlight">1899-1833</strong></span>
+                    </p>
+                </div>
+                <div class="escrow-info">
+                    <h5>하나은행 구매안전 서비스</h5>
+                    <p>고객님은 안전거래를 위해 현금으로 결제시 (주)길마중투어에서 가입한 하나은행으로 구매안전서비스를 이용하실 수 있습니다.</p>
+                    <a href="#" class="btn-escrow">[서비스 가입사실 확인]</a>
+                </div>
+            </div>
+
+            <div class="footer-notice">
+                <ul>
+                    <li>• 부득이한 사정에 의해 여행일정이 변경되는 경우 사전 동의를 받습니다.</li>
+                    <li>• 길마중투어는 개별 항공권 및 일부 여행상품에 대하여 통신판매중개자의 지위를 가지며, 해당 상품의 정보 및 거래 등에 관한 책임은 판매자에게 있습니다.</li>
+                    <li>• 예금주가 길마중투어가 아닌 계좌(개인, 대리점 등)로 입금하실 경우 당사에 대한 유효한 자금이 아니며, 당사는 책임지지 않습니다. 길마중 가상 계좌가 아닌 다른 계좌(개인, 대리점 등)에 대한 임금 유도가 있는 경우, 반드시 입금 전에 갈마중투어 고객센터로 문의 / 신고 하여 주시기 바랍니다.</li>
+                </ul>
+            </div>
+
+            <div class="footer-copyright">
+                <p>COPYRIGHT ⓒ GiLMAJUNG TOUR SERVICE INC. ALL RIGHTS RESERVED.</p>
+            </div>
+
+        </div>
+    </footer>
 </body>
 </html>

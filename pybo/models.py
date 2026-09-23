@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash
 import enum
 from pybo import db
 
@@ -19,7 +20,9 @@ class User(db.Model):
     orders = db.relationship('Order', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     #cart = db.relationship('Cart', backref='user', uselist=False, cascade='all, delete-orphan')
     likes = db.relationship('ProductLike', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
 class RegionEnum(str, enum.Enum):
     SEOUL_GYEONGGI = "서울/경기"
     JEONLA = "전라"
