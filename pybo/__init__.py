@@ -1,14 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask
 
 
 def create_app():
-    app  = Flask(__name__)
 
-    @app.route('/')
-    def index():
-        return "flask team project!!"
+    app = Flask(__name__)
 
-    @app.route('/hj')
-    def hj():
-        return render_template('hj.html')
+    from .views import main_views
+
+    app.register_blueprint(main_views.bp)
+
     return app
