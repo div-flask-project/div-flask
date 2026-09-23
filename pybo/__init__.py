@@ -29,6 +29,9 @@ def create_app():
 
     from . import models
 
+    from .views import order_views
+    app.register_blueprint(order_views.bp)
+
     @app.route('/')
     def index():
         return "flask team project!!"
