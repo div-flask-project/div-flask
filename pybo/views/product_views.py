@@ -1,12 +1,9 @@
-from flask import render_template, Blueprint
+from flask import Flask, render_template
 
-bp = Blueprint('product', __name__, url_prefix='/product')
 
-@bp.route('/main_product')
-def main_product():
-    return render_template('product/main_product.html')
+def create_app():
+    app  = (Flask(__name__))
 
-@bp.route('/sub_product')
-def sub_product():
-    return render_template('product/sub_product.html')
 
+
+    return app
