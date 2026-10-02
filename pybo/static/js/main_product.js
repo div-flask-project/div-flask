@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('#pills-tab button[data-bs-toggle="pill"]');
-    const mapButtons = document.querySelectorAll('#map-choice .map-btn');
+    const mapButtons = document.querySelectorAll('#map-choice .map-btn, #map-choice .map-btn-all');
     const carouselEl = document.getElementById('carouselExampleAutoplaying');
     const mapCanvas = document.getElementById('map-canvas');
     const sourceImg = document.getElementById('map-source-img');
@@ -294,6 +294,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * 특정 권역만 화면에 표시하도록 전환하는 핵심 함수
+     * @param {string} region ('all', 'sudo', 'gang', 'chung', 'geong', 'jeon', 'jeju')
+     */
+    function activateRegion(region) {
+        if (!region) region = 'all';
+        currentActiveRegion = region;
+
+        // 1. 오른쪽 상품 영역: 해당 권역 패널만 보이도록 처리하고 다른 모든 패널 숨김
+        const targetPaneId = `pills-${region}`;
+        const allPanes = document.querySelectorAll('.tab-content .tab-pane');
+        allPanes.forEach(pane => {
+            if (pane.id === targetPaneId) {
+                pane.classList.add('show', 'active');
+            } else {
+                pane.classList.remove('show', 'active');
+            }
+        });
+
+        // 2. 상단 탭 버튼 active 클래스 동기화
+        tabButtons.forEach(btn => {
+            const btnRegion = btn.dataset.region || 'all';
+            if (btnRegion === region) {
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+            } else {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            }
+        });
+
+        // 3. 좌측 지도 버튼 active 상태 동기화
+        const currentMapBtns = document.querySelectorAll('#map-choice .map-btn, #map-choice .map-btn-all');
+        currentMapBtns.forEach(btn => {
+            const btnRegion = btn.dataset.region || 'all';
+            if (btnRegion === region) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // 4. 상단 캐러셀 슬라이드 이동
+        if (carouselEl && window.bootstrap && typeof window.bootstrap.Carousel !== 'undefined') {
+            const slideIndex = regionToSlide[region];
+            if (slideIndex !== undefined) {
+                const carouselInstance = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+                if (carouselInstance) {
+                    carouselInstance.to(slideIndex);
+                }
+            }
+        }
+
+        // 5. 지도 캔버스 권역 색상 하이라이트 렌더링
+        renderMapHighlight(region);
+    }
+
+    /**
      * 지도 캔버스 클릭 시 해당 권역 선택 이벤트 연동
      */
     if (mapCanvas) {
@@ -309,15 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 이미 활성화된 권역을 다시 클릭하면 전체로 복귀
             if (currentActiveRegion === clickedRegion) {
-                const allTab = document.getElementById('pills-all-tab');
-                if (allTab && window.bootstrap) {
-                    bootstrap.Tab.getOrCreateInstance(allTab).show();
-                }
+                activateRegion('all');
             } else {
-                const targetTab = document.getElementById(`pills-${clickedRegion}-tab`);
-                if (targetTab && window.bootstrap) {
-                    bootstrap.Tab.getOrCreateInstance(targetTab).show();
-                }
+                activateRegion(clickedRegion);
             }
         });
 
@@ -333,71 +384,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * 활성화된 권역에 따라 지도 색상, 버튼 상태 및 상단 캐러셀 동기화
-     */
-    function syncActiveState(activeRegion) {
-        currentActiveRegion = activeRegion;
-
-        // 1. 지도 버튼 active 상태 동기화
-        mapButtons.forEach(btn => {
-            const btnRegion = btn.dataset.region;
-            if (btnRegion === activeRegion) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-
-        // 2. 상단 캐러셀 슬라이드 이동
-        if (carouselEl && window.bootstrap && typeof window.bootstrap.Carousel !== 'undefined') {
-            const slideIndex = regionToSlide[activeRegion];
-            if (slideIndex !== undefined) {
-                const carouselInstance = bootstrap.Carousel.getOrCreateInstance(carouselEl);
-                if (carouselInstance) {
-                    carouselInstance.to(slideIndex);
-                }
-            }
-        }
-
-        // 3. 지도 캔버스 권역 색상 하이라이트 렌더링
-        renderMapHighlight(activeRegion);
-    }
-
-    // 상단 탭 클릭/전환 이벤트 리스너
+    // 상단 탭 버튼 클릭 이벤트 리스너 등록
     tabButtons.forEach(tabBtn => {
-        tabBtn.addEventListener('shown.bs.tab', (event) => {
-            const region = event.target.dataset.region || 'all';
-            syncActiveState(region);
+        tabBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const region = tabBtn.dataset.region || 'all';
+            activateRegion(region);
         });
     });
 
-    // 좌측 지도 권역 버튼 클릭 이벤트 리스너
+    // 좌측 지도 권역 버튼 및 전체 버튼 클릭 이벤트 리스너 등록
     mapButtons.forEach(mapBtn => {
-        mapBtn.addEventListener('click', () => {
-            const region = mapBtn.dataset.region;
-            if (!region) return;
+        mapBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const region = mapBtn.dataset.region || 'all';
 
             // 이미 활성화된 권역 버튼을 다시 클릭하면 '전체' 보기로 복귀
-            if (mapBtn.classList.contains('active')) {
-                const allTab = document.getElementById('pills-all-tab');
-                if (allTab && window.bootstrap) {
-                    bootstrap.Tab.getOrCreateInstance(allTab).show();
-                }
-                return;
-            }
-
-            // 해당 권역 탭 활성화
-            const targetTab = document.getElementById(`pills-${region}-tab`);
-            if (targetTab && window.bootstrap) {
-                bootstrap.Tab.getOrCreateInstance(targetTab).show();
+            if (region !== 'all' && currentActiveRegion === region) {
+                activateRegion('all');
+            } else {
+                activateRegion(region);
             }
         });
     });
 
     // 초기 캔버스 초기화 및 활성화된 탭 상태 동기화
     initMapCanvas();
-    const activeTab = document.querySelector('#pills-tab button.nav-link.active');
+    const activeTab = document.querySelector('#pills-tab button.nav-link.active') ||
+                      document.querySelector('#map-choice .map-btn.active');
     const initialRegion = activeTab ? (activeTab.dataset.region || 'all') : 'all';
-    syncActiveState(initialRegion);
+    activateRegion(initialRegion);
 });

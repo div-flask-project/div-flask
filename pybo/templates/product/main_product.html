@@ -77,6 +77,32 @@
         </div>
     </div>
 
+    <div id="underslide" class="my-4">
+        <ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'all' %}active{% endif %}" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="{% if selected_region == 'all' %}true{% else %}false{% endif %}" data-region="all">전체</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'sudo' %}active{% endif %}" id="pills-sudo-tab" data-bs-toggle="pill" data-bs-target="#pills-sudo" type="button" role="tab" aria-controls="pills-sudo" aria-selected="{% if selected_region == 'sudo' %}true{% else %}false{% endif %}" data-region="sudo">수도권</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'gang' %}active{% endif %}" id="pills-gang-tab" data-bs-toggle="pill" data-bs-target="#pills-gang" type="button" role="tab" aria-controls="pills-gang" aria-selected="{% if selected_region == 'gang' %}true{% else %}false{% endif %}" data-region="gang">강원권</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'chung' %}active{% endif %}" id="pills-chung-tab" data-bs-toggle="pill" data-bs-target="#pills-chung" type="button" role="tab" aria-controls="pills-chung" aria-selected="{% if selected_region == 'chung' %}true{% else %}false{% endif %}" data-region="chung">충청권</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'geong' %}active{% endif %}" id="pills-geong-tab" data-bs-toggle="pill" data-bs-target="#pills-geong" type="button" role="tab" aria-controls="pills-geong" aria-selected="{% if selected_region == 'geong' %}true{% else %}false{% endif %}" data-region="geong">경상권</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'jeon' %}active{% endif %}" id="pills-jeon-tab" data-bs-toggle="pill" data-bs-target="#pills-jeon" type="button" role="tab" aria-controls="pills-jeon" aria-selected="{% if selected_region == 'jeon' %}true{% else %}false{% endif %}" data-region="jeon">전라권</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if selected_region == 'jeju' %}active{% endif %}" id="pills-jeju-tab" data-bs-toggle="pill" data-bs-target="#pills-jeju" type="button" role="tab" aria-controls="pills-jeju" aria-selected="{% if selected_region == 'jeju' %}true{% else %}false{% endif %}" data-region="jeju">제주권</button>
+            </li>
+        </ul>
+    </div>
+
     <div class="wide1">
         <div style="grid-template-columns: 4fr 8fr;" class="d-grid gap-3 row-gap-3">
             <!-- 왼쪽 구역 -->
@@ -97,6 +123,9 @@
                     <button type="button" class="map-btn {% if selected_region == 'jeon' %}active{% endif %}" data-region="jeon">전라권</button>
                     <button type="button" class="map-btn {% if selected_region == 'jeju' %}active{% endif %}" data-region="jeju">제주권</button>
                 </div>
+                <button type="button" class="map-btn-all btn btn-outline-secondary w-100 mt-3 py-2 fw-semibold {% if selected_region == 'all' %}active{% endif %}" data-region="all">
+                    🌐 전체 권역 상품 보기
+                </button>
             </div>
             <!-- 오른쪽 구역 -->
             <div class="tab-content" id="pills-tabContent">

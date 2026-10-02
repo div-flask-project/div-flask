@@ -144,6 +144,22 @@
     font-weight: 700;
 }
 
+.map-btn-all {
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border-color: #ced4da;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.map-btn-all:hover,
+.map-btn-all.active {
+    background-color: #1D3557 !important;
+    border-color: #1D3557 !important;
+    color: #ffffff !important;
+}
+
+
 /* =========================================================
    상품 카드 및 이미지 정형화 스타일 (균일한 크기 및 정렬 유지)
    ========================================================= */
