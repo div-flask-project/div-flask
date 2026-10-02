@@ -5,7 +5,7 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/reserve.css') }}">
 
-<div class="container page-content" id="reserveApp"
+<div class="container-lg py-4 reserve-container" id="reserveApp"
   data-unit-original-price="{{ unit_original_price }}"
   data-unit-discount="{{ unit_discount }}"
   data-unit-final-price="{{ unit_final_price }}"
@@ -14,55 +14,64 @@
   data-user-name="{{ logged_user.name if logged_user else '' }}"
   data-user-phone="{{ logged_user.phone if logged_user else '' }}"
 >
-  <div class="page-header">
-    <h1>여행 상품 예약 
-      {% if is_member %}
-        <span class="badge-member">회원 특별 우대</span>
-      {% else %}
-        <span class="badge-guest">비회원 주문</span>
-      {% endif %}
-    </h1>
-    <p>예약자 정보, 여행객 정보 및 약관 동의를 완료하신 후 결제를 진행해주세요.</p>
+  <!-- 페이지 상단 헤더 -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1 d-flex align-items-center flex-wrap gap-2 text-dark">
+        여행 상품 예약 
+        {% if is_member %}
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6">회원 특별 우대</span>
+        {% else %}
+          <span class="badge bg-secondary-subtle text-secondary border fs-6">비회원 주문</span>
+        {% endif %}
+      </h1>
+      <p class="text-muted mb-0 small">예약자 정보, 여행객 정보 및 약관 동의를 완료하신 후 결제를 진행해주세요.</p>
+    </div>
   </div>
 
   <!-- 유효성 검증 및 안내 플래시 메시지 -->
   {% for message in get_flashed_messages() %}
-  <div class="alert alert-danger" style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 14px;">
-    ⚠️ {{ message }}
+  <div class="alert alert-danger d-flex align-items-center mb-4 shadow-sm" role="alert">
+    <span class="me-2 fs-5">⚠️</span>
+    <div>{{ message }}</div>
   </div>
   {% endfor %}
 
   <!-- 1. 예약 상품 확인 -->
-  <div class="card-section">
-    <h3>1. 예약 상품 확인</h3>
-    <div class="checkout-items">
-      <div class="checkout-item-row">
-        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="checkout-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-        <div class="checkout-info">
-          <h4>{{ product.name }}</h4>
-          <span class="text-muted">권역: {{ product.region }}</span>
+  <div class="card shadow-sm border mb-4">
+    <div class="card-body p-4">
+      <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center gap-2 text-dark">
+        <span>📦 1. 예약 상품 확인</span>
+      </h3>
+      <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between p-3 bg-light rounded-3 mb-3 border">
+        <div class="d-flex align-items-center gap-3">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="rounded-3 border object-fit-cover flex-shrink-0" style="width: 100px; height: 75px;" onerror="this.src='/static/img/default-tour.jpg'">
+          <div>
+            <h4 class="h6 fw-bold mb-1 text-dark">{{ product.name }}</h4>
+            <span class="text-muted small">권역: {{ product.region }}</span>
+          </div>
         </div>
-        <div class="checkout-prices">
+        <div class="text-sm-end">
           {% if is_member %}
-            <span class="orig-strike">1인 {{ "{:,}".format(unit_original_price) }}원</span>
-            <span class="discount-final">1인 {{ "{:,}".format(unit_final_price) }}원</span>
+            <span class="text-muted text-decoration-line-through small d-block">1인 {{ "{:,}".format(unit_original_price) }}원</span>
+            <span class="fs-5 fw-bold text-danger">1인 {{ "{:,}".format(unit_final_price) }}원</span>
           {% else %}
-            <span class="discount-final">1인 {{ "{:,}".format(unit_original_price) }}원</span>
+            <span class="fs-5 fw-bold text-danger">1인 {{ "{:,}".format(unit_original_price) }}원</span>
           {% endif %}
         </div>
       </div>
-    </div>
 
-    <!-- 인원수 조절 -->
-    <div class="headcount-box">
-      <div>
-        <div class="headcount-label">여행객 인원수</div>
-        <div class="headcount-desc">인원수에 맞추어 아래 여행객 상세 정보를 입력합니다.</div>
-      </div>
-      <div class="stepper-btn-group">
-        <button type="button" class="btn-step" onclick="changeHeadcount(-1)">-</button>
-        <input type="number" id="headcountInput" value="{{ headcount }}" min="1" max="20" class="headcount-input" readonly>
-        <button type="button" class="btn-step" onclick="changeHeadcount(1)">+</button>
+      <!-- 인원수 조절 -->
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 p-3 bg-light rounded-3 border">
+        <div>
+          <div class="fw-bold text-dark mb-1">여행객 인원수</div>
+          <small class="text-muted">인원수에 맞추어 아래 여행객 상세 정보를 입력합니다.</small>
+        </div>
+        <div class="input-group" style="width: 130px;">
+          <button type="button" class="btn btn-outline-secondary fw-bold" onclick="changeHeadcount(-1)">-</button>
+          <input type="number" id="headcountInput" value="{{ headcount }}" min="1" max="20" class="form-control text-center fw-bold bg-white" readonly>
+          <button type="button" class="btn btn-outline-secondary fw-bold" onclick="changeHeadcount(1)">+</button>
+        </div>
       </div>
     </div>
   </div>
@@ -74,34 +83,35 @@
     <input type="hidden" name="headcount" id="formHeadcount" value="{{ headcount }}">
 
     <!-- 2. 여행 날짜 지정 -->
-    <div class="card-section">
-      <h3 style="display: flex; align-items: center; justify-content: space-between;">
-        <span>📅 2. 여행 날짜 선택 (출발일)</span>
-        <span class="badge-opt" style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 600;">출발일 지정</span>
-      </h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-        여행 출발일을 선택해주세요. <strong>오늘 이후(내일)부터 2주일(14일) 이내</strong>의 날짜만 예약 가능합니다.
-      </p>
+    <div class="card shadow-sm border mb-4">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between text-dark">
+          <span>📅 2. 여행 날짜 선택 (출발일)</span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">출발일 지정</span>
+        </h3>
+        <p class="text-muted small mb-3">
+          여행 출발일을 선택해주세요. <strong>오늘 이후(내일)부터 2주일(14일) 이내</strong>의 날짜만 예약 가능합니다.
+        </p>
 
-      <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 18px;">
-        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px;">
-          <div style="flex: 1; min-width: 220px; max-width: 320px;">
-            <label class="form-label" for="travel_date" style="font-weight: 600; margin-bottom: 6px; display: block;">
-              여행 출발일 *
-            </label>
-            <input type="date" id="travel_date" name="travel_date" required class="form-control"
-                   min="{{ min_date }}" max="{{ max_date }}"
-                   value="{{ form.travel_date.data or min_date }}"
-                   style="padding: 10px 14px; font-size: 15px; border-radius: 8px; border: 1px solid var(--border-color); width: 100%; background: #ffffff;">
-          </div>
-          <div style="flex: 2; min-width: 260px; font-size: 13px; color: #475569;">
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-              <span style="font-size: 16px;">📌</span>
-              <strong>선택 가능 기간:</strong>
-              <span id="dateRangeNotice" style="color: #2563eb; font-weight: 700;">{{ min_date }} ~ {{ max_date }}</span>
+        <div class="bg-light p-3 rounded-3 border">
+          <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-5">
+              <label class="form-label fw-bold mb-1 small" for="travel_date">
+                여행 출발일 <span class="text-danger">*</span>
+              </label>
+              <input type="date" id="travel_date" name="travel_date" required class="form-control bg-white"
+                     min="{{ min_date }}" max="{{ max_date }}"
+                     value="{{ form.travel_date.data or min_date }}">
             </div>
-            <div style="color: #64748b; font-size: 12px;">
-              ※ 당일 출발 예약은 불가하며, 오늘 이후 2주일 이내의 날짜만 선택하실 수 있습니다.
+            <div class="col-12 col-md-7">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span>📌</span>
+                <strong class="text-dark small">선택 가능 기간:</strong>
+                <span id="dateRangeNotice" class="text-primary fw-bold small">{{ min_date }} ~ {{ max_date }}</span>
+              </div>
+              <small class="text-muted d-block">
+                ※ 당일 출발 예약은 불가하며, 오늘 이후 2주일 이내의 날짜만 선택하실 수 있습니다.
+              </small>
             </div>
           </div>
         </div>
@@ -109,135 +119,161 @@
     </div>
 
     <!-- 3. 예약자 정보 -->
-    <div class="card-section">
-      <h3>3. 예약자 정보</h3>
-      {% if is_member and logged_user %}
-        <div class="user-info-grid">
-          <div class="info-row">
-            <span class="label">성명:</span>
-            <span class="val">{{ logged_user.name }}</span>
+    <div class="card shadow-sm border mb-4">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom text-dark">
+          <span>👤 3. 예약자 정보</span>
+        </h3>
+        {% if is_member and logged_user %}
+          <div class="row g-3 p-3 bg-light rounded-3 border">
+            <div class="col-12 col-sm-6">
+              <div class="d-flex gap-2">
+                <span class="text-muted" style="min-width: 60px;">성명:</span>
+                <span class="fw-bold text-dark">{{ logged_user.name }}</span>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="d-flex gap-2">
+                <span class="text-muted" style="min-width: 60px;">회원ID:</span>
+                <span class="fw-bold text-dark">{{ logged_user.user_id }}</span>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="d-flex gap-2">
+                <span class="text-muted" style="min-width: 60px;">연락처:</span>
+                <span class="fw-bold text-dark">{{ logged_user.phone }}</span>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="d-flex gap-2">
+                <span class="text-muted" style="min-width: 60px;">이메일:</span>
+                <span class="fw-bold text-dark">{{ logged_user.email }}</span>
+              </div>
+            </div>
           </div>
-          <div class="info-row">
-            <span class="label">회원ID:</span>
-            <span class="val">{{ logged_user.user_id }}</span>
+        {% else %}
+          <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+            <span class="fs-5">ℹ️</span>
+            <div class="small">
+              <strong>비회원 예약</strong>으로 진행 중입니다. 예약 확인 및 알림을 위해 연락처를 정확히 입력해주세요.
+            </div>
           </div>
-          <div class="info-row">
-            <span class="label">연락처:</span>
-            <span class="val">{{ logged_user.phone }}</span>
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-bold small" for="guest_name">예약자 성함 <span class="text-danger">*</span></label>
+              <input type="text" id="guest_name" name="guest_name" required class="form-control" placeholder="예: 홍길동" value="{{ form.guest_name.data or '' }}">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-bold small" for="guest_phone">휴대폰 번호 <span class="text-danger">*</span></label>
+              <input type="tel" id="guest_phone" name="guest_phone" required class="form-control" placeholder="예: 010-1234-5678" value="{{ form.guest_phone.data or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small" for="guest_email">이메일 주소 (예약 확인용) <span class="text-danger">*</span></label>
+              <input type="email" id="guest_email" name="guest_email" required class="form-control" placeholder="예: guest@example.com" value="{{ form.guest_email.data or '' }}">
+            </div>
           </div>
-          <div class="info-row">
-            <span class="label">이메일:</span>
-            <span class="val">{{ logged_user.email }}</span>
-          </div>
-        </div>
-      {% else %}
-        <div class="guest-checkout-alert">
-          <span>ℹ️</span>
-          <div>
-            <strong>비회원 예약</strong>으로 진행 중입니다. 예약 확인 및 알림을 위해 연락처를 정확히 입력해주세요.
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label" for="guest_name">예약자 성함 *</label>
-            <input type="text" id="guest_name" name="guest_name" required class="form-control" placeholder="예: 홍길동" value="{{ form.guest_name.data or '' }}">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="guest_phone">휴대폰 번호 *</label>
-            <input type="tel" id="guest_phone" name="guest_phone" required class="form-control" placeholder="예: 010-1234-5678" value="{{ form.guest_phone.data or '' }}">
-          </div>
-          <div class="form-group full-width">
-            <label class="form-label" for="guest_email">이메일 주소 (예약 확인용) *</label>
-            <input type="email" id="guest_email" name="guest_email" required class="form-control" placeholder="예: guest@example.com" value="{{ form.guest_email.data or '' }}">
-          </div>
-        </div>
-      {% endif %}
-    </div>
-
-    <!-- 4. 여행객 정보 입력 (다인원) -->
-    <div class="card-section">
-      <h3>
-        4. 여행객 상세 정보 
-        <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);">(총 <span id="labelTravelerCount">{{ headcount }}</span>명)</span>
-      </h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-        여행자 보험 가입 및 탑승자 명부 작성을 위해 모든 여행객의 정보를 정확히 입력해주세요.
-      </p>
-
-      <div id="travelersContainer">
-        <!-- 자바스크립트로 동적 렌더링됨 -->
+        {% endif %}
       </div>
     </div>
 
-    <!-- 5. 약관 및 개인정보 동의 (여행객 정보 바로 아래) -->
-    <div class="card-section" id="termsSection">
-      <h3>5. 약관 및 개인정보 동의</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-        원활한 여행 서비스 제공을 위해 필수 동의 항목에 동의하셔야 결제를 진행하실 수 있습니다.
-      </p>
+    <!-- 4. 여행객 정보 입력 (다인원) -->
+    <div class="card shadow-sm border mb-4">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-2 pb-2 border-bottom d-flex align-items-center justify-content-between text-dark">
+          <span>👥 4. 여행객 상세 정보</span>
+          <span class="text-muted fs-6 fw-normal">(총 <span id="labelTravelerCount" class="text-primary fw-bold">{{ headcount }}</span>명)</span>
+        </h3>
+        <p class="text-muted small mb-3">
+          여행자 보험 가입 및 탑승자 명부 작성을 위해 모든 여행객의 정보를 정확히 입력해주세요.
+        </p>
 
-      <div class="terms-box">
-        <!-- 전체 동의 -->
-        <div class="terms-all-check" onclick="toggleAgreeAll(event)">
-          <input type="checkbox" id="agreeAll" onchange="handleAgreeAllChange(this.checked)">
-          <label for="agreeAll" class="terms-all-label">전체 동의</label>
+        <div id="travelersContainer">
+          <!-- 자바스크립트로 동적 렌더링됨 -->
         </div>
+      </div>
+    </div>
 
-        <!-- 개별 동의 항목들 -->
-        <div class="terms-list">
-          <!-- 1. 국내여행 특별약관 [필수] -->
-          <div>
-            <div class="term-item">
-              <label class="term-label-wrap">
-                <input type="checkbox" name="agree_special" id="agreeSpecial" class="term-item-check term-required" required>
-                <span>국내여행 특별약관 <span class="badge-req">[필수]</span></span>
-              </label>
-              <button type="button" class="btn-term-detail" onclick="toggleDetail('detailSpecial')">전문보기</button>
-            </div>
-            <div id="detailSpecial" class="term-detail-content">
-              본 여행 상품은 여행자의 안전과 일정 관리를 위해 국내여행 표준약관 및 특별약관의 적용을 받습니다. 취소 시점에 따라 소정의 취소수수료가 발생할 수 있습니다.
-            </div>
+    <!-- 5. 약관 및 개인정보 동의 -->
+    <div class="card shadow-sm border mb-4" id="termsSection">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-2 pb-2 border-bottom text-dark">
+          <span>📋 5. 약관 및 개인정보 동의</span>
+        </h3>
+        <p class="text-muted small mb-3">
+          원활한 여행 서비스 제공을 위해 필수 동의 항목에 동의하셔야 결제를 진행하실 수 있습니다.
+        </p>
+
+        <div class="border rounded-3 overflow-hidden">
+          <!-- 전체 동의 -->
+          <div class="p-3 bg-light border-bottom d-flex align-items-center gap-2" style="cursor: pointer;" onclick="toggleAgreeAll(event)">
+            <input type="checkbox" id="agreeAll" class="form-check-input mt-0" style="width: 20px; height: 20px;" onchange="handleAgreeAllChange(this.checked)">
+            <label for="agreeAll" class="form-check-label fw-bold text-dark fs-6 ms-1" style="cursor: pointer;">전체 동의</label>
           </div>
 
-          <!-- 2. 개인정보 제3자 제공동의 [필수] -->
-          <div>
-            <div class="term-item">
-              <label class="term-label-wrap">
-                <input type="checkbox" name="agree_privacy" id="agreePrivacy" class="term-item-check term-required" required>
-                <span>개인정보 제3자 제공동의 <span class="badge-req">[필수]</span></span>
-              </label>
-              <button type="button" class="btn-term-detail" onclick="toggleDetail('detailPrivacy')">전문보기</button>
+          <!-- 개별 동의 항목들 -->
+          <div class="p-3 d-flex flex-column gap-3 bg-white">
+            <!-- 1. 국내여행 특별약관 [필수] -->
+            <div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check mb-0">
+                  <input type="checkbox" name="agree_special" id="agreeSpecial" class="form-check-input term-item-check term-required" required>
+                  <label class="form-check-label small" for="agreeSpecial">
+                    국내여행 특별약관 <span class="badge text-bg-danger ms-1">[필수]</span>
+                  </label>
+                </div>
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small" onclick="toggleDetail('detailSpecial')">전문보기</button>
+              </div>
+              <div id="detailSpecial" class="term-detail-content bg-light p-2 rounded-2 mt-2 border text-secondary small">
+                본 여행 상품은 여행자의 안전과 일정 관리를 위해 국내여행 표준약관 및 특별약관의 적용을 받습니다. 취소 시점에 따라 소정의 취소수수료가 발생할 수 있습니다.
+              </div>
             </div>
-            <div id="detailPrivacy" class="term-detail-content">
-              제공받는 자: 현지 여행 운송업체 및 제휴 숙박/체험처 | 제공 항목: 성명, 연락처, 생년월일 | 이용 목적: 차량 배차, 숙박 배정 및 여행자 보험 가입 | 보유 기간: 여행 종료 후 30일
-            </div>
-          </div>
 
-          <!-- 3. 민감정보 수집 및 이용 동의 [필수] -->
-          <div>
-            <div class="term-item">
-              <label class="term-label-wrap">
-                <input type="checkbox" name="agree_sensitive" id="agreeSensitive" class="term-item-check term-required" required>
-                <span>민감정보 수집 및 이용 동의 <span class="badge-req">[필수]</span></span>
-              </label>
-              <button type="button" class="btn-term-detail" onclick="toggleDetail('detailSensitive')">전문보기</button>
+            <!-- 2. 개인정보 제3자 제공동의 [필수] -->
+            <div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check mb-0">
+                  <input type="checkbox" name="agree_privacy" id="agreePrivacy" class="form-check-input term-item-check term-required" required>
+                  <label class="form-check-label small" for="agreePrivacy">
+                    개인정보 제3자 제공동의 <span class="badge text-bg-danger ms-1">[필수]</span>
+                  </label>
+                </div>
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small" onclick="toggleDetail('detailPrivacy')">전문보기</button>
+              </div>
+              <div id="detailPrivacy" class="term-detail-content bg-light p-2 rounded-2 mt-2 border text-secondary small">
+                제공받는 자: 현지 여행 운송업체 및 제휴 숙박/체험처 | 제공 항목: 성명, 연락처, 생년월일 | 이용 목적: 차량 배차, 숙박 배정 및 여행자 보험 가입 | 보유 기간: 여행 종료 후 30일
+              </div>
             </div>
-            <div id="detailSensitive" class="term-detail-content">
-              수집 항목: 생년월일, 성별, 안전 운행을 위한 신체 상태 | 이용 목적: 여행자 안전사고 대비 및 단체 여행자 보험 인수 심사 | 보유 기간: 관계 법령에 따른 의무 보관 기간
-            </div>
-          </div>
 
-          <!-- 4. 위치 정보 이용 동의 [선택] -->
-          <div>
-            <div class="term-item">
-              <label class="term-label-wrap">
-                <input type="checkbox" name="agree_location" id="agreeLocation" class="term-item-check">
-                <span>위치 정보 이용 동의 <span class="badge-opt">[선택]</span></span>
-              </label>
-              <button type="button" class="btn-term-detail" onclick="toggleDetail('detailLocation')">전문보기</button>
+            <!-- 3. 민감정보 수집 및 이용 동의 [필수] -->
+            <div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check mb-0">
+                  <input type="checkbox" name="agree_sensitive" id="agreeSensitive" class="form-check-input term-item-check term-required" required>
+                  <label class="form-check-label small" for="agreeSensitive">
+                    민감정보 수집 및 이용 동의 <span class="badge text-bg-danger ms-1">[필수]</span>
+                  </label>
+                </div>
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small" onclick="toggleDetail('detailSensitive')">전문보기</button>
+              </div>
+              <div id="detailSensitive" class="term-detail-content bg-light p-2 rounded-2 mt-2 border text-secondary small">
+                수집 항목: 생년월일, 성별, 안전 운행을 위한 신체 상태 | 이용 목적: 여행자 안전사고 대비 및 단체 여행자 보험 인수 심사 | 보유 기간: 관계 법령에 따른 의무 보관 기간
+              </div>
             </div>
-            <div id="detailLocation" class="term-detail-content">
-              이용 목적: 여행 중 실시간 위치 기반 관광지/코스 안내 및 인솔 가이드 위치 공유 서비스 제공 | 보유 기간: 여행 당일 서비스 종료 시 즉시 파기
+
+            <!-- 4. 위치 정보 이용 동의 [선택] -->
+            <div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check mb-0">
+                  <input type="checkbox" name="agree_location" id="agreeLocation" class="form-check-input term-item-check">
+                  <label class="form-check-label small" for="agreeLocation">
+                    위치 정보 이용 동의 <span class="badge text-bg-secondary ms-1">[선택]</span>
+                  </label>
+                </div>
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small" onclick="toggleDetail('detailLocation')">전문보기</button>
+              </div>
+              <div id="detailLocation" class="term-detail-content bg-light p-2 rounded-2 mt-2 border text-secondary small">
+                이용 목적: 여행 중 실시간 위치 기반 관광지/코스 안내 및 인솔 가이드 위치 공유 서비스 제공 | 보유 기간: 여행 당일 서비스 종료 시 즉시 파기
+              </div>
             </div>
           </div>
         </div>
@@ -245,152 +281,164 @@
     </div>
 
     <!-- 6. 연관 숙박 예약 (호텔/민박) - 회원 전용 혜택 -->
-    <div class="card-section" id="accommodationSection">
-      <h3 style="display: flex; align-items: center; justify-content: space-between;">
-        <span>🏨 6. 연관 숙박 예약 (호텔 &amp; 민박)</span>
+    <div class="card shadow-sm border mb-4" id="accommodationSection">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between text-dark">
+          <span>🏨 6. 연관 숙박 예약 (호텔 &amp; 민박)</span>
+          {% if is_member %}
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">회원 우대 연계</span>
+          {% else %}
+            <span class="badge bg-secondary-subtle text-secondary border">회원 전용</span>
+          {% endif %}
+        </h3>
+
         {% if is_member %}
-          <span class="badge-opt" style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 600;">회원 우대 연계</span>
-        {% else %}
-          <span class="badge-opt" style="font-size: 12px; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 4px; font-weight: 600;">회원 전용</span>
-        {% endif %}
-      </h3>
+          <p class="text-muted small mb-3">
+            여행 권역(<strong>{{ product.region }}</strong>)의 추천 숙소를 함께 예약하실 수 있습니다. 원하시는 호텔 또는 민박을 선택하시면 여행 상품과 함께 통합 결제됩니다.
+          </p>
 
-      {% if is_member %}
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-          여행 권역(<strong>{{ product.region }}</strong>)의 추천 숙소를 함께 예약하실 수 있습니다. 원하시는 호텔 또는 민박을 선택하시면 여행 상품과 함께 통합 결제됩니다.
-        </p>
+          <!-- 필터 탭 -->
+          <div class="acc-filter-tabs d-flex gap-2 mb-3 flex-wrap">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill btn-acc-tab active" onclick="filterAcc('all', this)">전체보기 ({{ accommodations|length }})</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill btn-acc-tab" onclick="filterAcc('호텔', this)">🏨 호텔 ({{ hotels|length }})</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill btn-acc-tab" onclick="filterAcc('민박', this)">🏡 민박 ({{ minbaks|length }})</button>
+          </div>
 
-        <!-- 필터 탭 -->
-        <div class="acc-filter-tabs">
-          <button type="button" class="btn-acc-tab active" onclick="filterAcc('all', this)">전체보기 ({{ accommodations|length }})</button>
-          <button type="button" class="btn-acc-tab" onclick="filterAcc('호텔', this)">🏨 호텔 ({{ hotels|length }})</button>
-          <button type="button" class="btn-acc-tab" onclick="filterAcc('민박', this)">🏡 민박 ({{ minbaks|length }})</button>
-        </div>
-
-        <!-- 옵션: 숙소 선택 안 함 (기본) -->
-        <div class="acc-none-option">
-          <label class="acc-none-card selected" id="accCard_none">
-            <div class="acc-none-left">
-              <span class="acc-none-icon">🚫</span>
-              <div>
-                <div class="acc-none-title">숙소 선택 안 함 (여행 상품만 예약)</div>
-                <div class="acc-none-desc">추가 숙박 예약 없이 관광 여행 상품만 결제를 진행합니다.</div>
-              </div>
-            </div>
-            <input type="radio" name="accommodation_id" value="" checked
-                   data-name="" data-price="0" data-category=""
-                   onchange="handleAccSelect(this)">
-          </label>
-        </div>
-
-        <!-- 숙소 목록 그리드 -->
-        <div class="acc-list-grid" id="accListGrid">
-          {% for acc in accommodations %}
-            <label class="acc-card" id="accCard_{{ acc.id }}" data-category="{{ acc.category }}">
-              <div class="acc-card-radio-wrap">
-                <input type="radio" name="accommodation_id" value="{{ acc.id }}"
-                       data-name="{{ acc.name }}" data-price="{{ acc.price_per_night }}" data-category="{{ acc.category }}"
+          <!-- 옵션: 숙소 선택 안 함 (기본) -->
+          <div class="mb-3">
+            <label class="card border-2 p-3 selected" id="accCard_none" style="cursor: pointer;">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="fs-4">🚫</span>
+                  <div>
+                    <div class="fw-bold text-dark">숙소 선택 안 함 (여행 상품만 예약)</div>
+                    <small class="text-muted">추가 숙박 예약 없이 관광 여행 상품만 결제를 진행합니다.</small>
+                  </div>
+                </div>
+                <input type="radio" name="accommodation_id" value="" checked
+                       data-name="" data-price="0" data-category=""
+                       class="form-check-input ms-2"
                        onchange="handleAccSelect(this)">
               </div>
-              <div class="acc-card-thumb-wrap">
-                <img src="{{ acc.image_url }}" alt="{{ acc.name }}" class="acc-card-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-              </div>
-              <div class="acc-card-info">
-                <div class="acc-badges-row">
-                  {% if acc.category == '호텔' %}
-                    <span class="badge-cat-hotel">호텔</span>
-                  {% else %}
-                    <span class="badge-cat-minbak">민박</span>
-                  {% endif %}
-                  <span class="acc-rating">★ {{ acc.rating }}</span>
-                </div>
-                <div class="acc-name" title="{{ acc.name }}">{{ acc.name }}</div>
-                <div class="acc-location" title="{{ acc.location }}">📍 {{ acc.location }}</div>
-                <div class="acc-price-row">
-                  <span class="price-label">1박 요금:</span>
-                  <span class="price-val">{{ "{:,}".format(acc.price_per_night) }}원</span>
-                </div>
-              </div>
             </label>
-          {% endfor %}
-        </div>
-
-      {% else %}
-        <!-- 비회원 안내 배너 -->
-        <div class="guest-acc-notice">
-          <div class="guest-acc-content">
-            <span class="guest-acc-icon">🏨</span>
-            <div class="guest-acc-text">
-              <strong>연관 숙박(호텔 / 민박) 연계 예약은 길마중 회원 전용 혜택입니다.</strong>
-              <p>길마중 회원으로 로그인하시면 <strong>{{ product.region }}</strong> 권역의 엄선된 호텔 10곳 및 민박 10곳을 여행과 함께 원스톱으로 할인 예약하실 수 있습니다.</p>
-            </div>
           </div>
-          <a href="{{ url_for('auth.login') }}" class="btn-acc-login">로그인하기</a>
-        </div>
-      {% endif %}
+
+          <!-- 숙소 목록 그리드 (width가 작은 경우 1줄에 1칸 표시: row-cols-1 row-cols-md-2) -->
+          <div class="row row-cols-1 row-cols-md-2 g-3 overflow-y-auto pe-1" id="accListGrid" style="max-height: 520px;">
+            {% for acc in accommodations %}
+              <div class="col" data-category="{{ acc.category }}">
+                <label class="card h-100 border-2 p-2 position-relative" id="accCard_{{ acc.id }}" style="cursor: pointer;">
+                  <div class="position-absolute top-0 end-0 p-2 z-1">
+                    <input type="radio" name="accommodation_id" value="{{ acc.id }}"
+                           data-name="{{ acc.name }}" data-price="{{ acc.price_per_night }}" data-category="{{ acc.category }}"
+                           class="form-check-input"
+                           onchange="handleAccSelect(this)">
+                  </div>
+                  <div class="d-flex gap-3 align-items-center h-100">
+                    <div class="rounded-3 overflow-hidden flex-shrink-0 border" style="width: 110px; height: 85px;">
+                      <img src="{{ acc.image_url }}" alt="{{ acc.name }}" class="w-100 h-100 object-fit-cover" onerror="this.src='/static/img/default-tour.jpg'">
+                    </div>
+                    <div class="flex-grow-1 pe-4 overflow-hidden">
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        {% if acc.category == '호텔' %}
+                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold">호텔</span>
+                        {% else %}
+                          <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold">민박</span>
+                        {% endif %}
+                        <span class="text-warning small fw-bold">★ {{ acc.rating }}</span>
+                      </div>
+                      <h5 class="card-title h6 fw-bold text-dark text-truncate mb-1" title="{{ acc.name }}">{{ acc.name }}</h5>
+                      <p class="card-text text-muted small text-truncate mb-2" title="{{ acc.location }}">📍 {{ acc.location }}</p>
+                      <div class="d-flex align-items-baseline gap-1">
+                        <small class="text-muted">1박 요금:</small>
+                        <strong class="text-danger fs-6">{{ "{:,}".format(acc.price_per_night) }}원</strong>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          <!-- 비회원 안내 배너 -->
+          <div class="alert alert-success d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 p-3 mb-0" role="alert">
+            <div class="d-flex align-items-center gap-3">
+              <span class="fs-2">🏨</span>
+              <div>
+                <strong class="d-block text-success mb-1">연관 숙박(호텔 / 민박) 연계 예약은 길마중 회원 전용 혜택입니다.</strong>
+                <p class="mb-0 text-success-emphasis small">길마중 회원으로 로그인하시면 <strong>{{ product.region }}</strong> 권역의 엄선된 호텔 10곳 및 민박 10곳을 여행과 함께 원스톱으로 할인 예약하실 수 있습니다.</p>
+              </div>
+            </div>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-success btn-sm flex-shrink-0 fw-bold px-3 py-2">로그인하기</a>
+          </div>
+        {% endif %}
+      </div>
     </div>
 
-    <!-- 7. 결제 예정 금액 (맨 아래) -->
-    <div class="receipt-bottom-card">
-      <h3>
-        <span>7. 결제 예정 금액</span>
-        <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">
-          예약 인원: <strong id="summaryHeadcount">{{ headcount }}명</strong>
-        </span>
-      </h3>
-
-      <div class="receipt-rows-grid" id="receiptRowsGrid">
-        <div class="receipt-col">
-          <span class="col-label">총 여행 상품 정상 금액</span>
-          <span class="col-val" id="summaryOriginal">{{ "{:,}".format(total_original) }}원</span>
-        </div>
-
-        <div class="receipt-col">
-          <span class="col-label">
-            {% if is_member %}
-              회원 특별 우대 할인 ({{ (product.member_discount_rate * 100)|int }}%)
-            {% else %}
-              회원 할인
-            {% endif %}
+    <!-- 7. 결제 예정 금액 -->
+    <div class="card border-primary border-2 shadow-sm mb-4 receipt-bottom-card">
+      <div class="card-body p-4">
+        <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between text-dark">
+          <span>💳 7. 결제 예정 금액</span>
+          <span class="fs-6 fw-normal text-muted">
+            예약 인원: <strong id="summaryHeadcount" class="text-primary">{{ headcount }}명</strong>
           </span>
-          <span class="col-val discount" id="summaryDiscount">
-            {% if is_member %}
-              - {{ "{:,}".format(total_discount) }}원
-            {% else %}
-              0원 (비회원 정가)
-            {% endif %}
-          </span>
+        </h3>
+
+        <div class="row g-3 p-3 bg-light rounded-3 mb-3 border align-items-center" id="receiptRowsGrid">
+          <div class="col-12 col-sm-6 col-md-3">
+            <span class="text-muted small d-block mb-1">총 여행 상품 정상 금액</span>
+            <span class="fs-6 fw-bold text-dark" id="summaryOriginal">{{ "{:,}".format(total_original) }}원</span>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-3">
+            <span class="text-muted small d-block mb-1">
+              {% if is_member %}
+                회원 특별 할인 ({{ (product.member_discount_rate * 100)|int }}%)
+              {% else %}
+                회원 할인
+              {% endif %}
+            </span>
+            <span class="fs-6 fw-bold text-danger" id="summaryDiscount">
+              {% if is_member %}
+                - {{ "{:,}".format(total_discount) }}원
+              {% else %}
+                0원 (비회원 정가)
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-3" id="summaryAccCol" style="display: none;">
+            <span class="text-muted small d-block mb-1">연계 숙박 (<span id="summaryAccName">-</span>)</span>
+            <span class="fs-6 fw-bold text-primary" id="summaryAccPrice">+ 0원</span>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-3">
+            <span class="text-muted small d-block mb-1">여행 상품 1인 적용가</span>
+            <span class="fs-6 fw-bold text-dark">{{ "{:,}".format(unit_final_price) }}원</span>
+          </div>
         </div>
 
-        <div class="receipt-col" id="summaryAccCol" style="display: none;">
-          <span class="col-label">연계 숙박 (<span id="summaryAccName">-</span>)</span>
-          <span class="col-val" id="summaryAccPrice" style="color: #2563eb; font-weight: 700;">+ 0원</span>
+        <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-4">
+          <span class="h5 fw-bold mb-0 text-dark">최종 결제 예정 금액</span>
+          <span class="h2 fw-bolder text-danger mb-0" id="summaryFinal">{{ "{:,}".format(total_final) }}원</span>
         </div>
 
-        <div class="receipt-col">
-          <span class="col-label">여행 상품 1인 적용가</span>
-          <span class="col-val">{{ "{:,}".format(unit_final_price) }}원</span>
-        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-5 shadow-sm">
+          결제 화면으로 이동 &gt;
+        </button>
+
+        {% if is_member %}
+          <div class="alert alert-primary d-flex align-items-center justify-content-center text-center mt-3 mb-0 py-2 small" role="alert">
+            🎉 회원 혜택으로 여행 상품 총 <strong>{{ "{:,}".format(total_discount) }}원</strong>의 우대 할인 혜택이 적용되었습니다.
+          </div>
+        {% else %}
+          <div class="alert alert-light border border-dashed text-center mt-3 mb-0 py-2 small text-muted" role="alert">
+            💡 <strong>회원 가입 시</strong> 즉시 10~15% 회원 할인 혜택과 호텔/민박 연계 예약 혜택을 받으실 수 있습니다.
+          </div>
+        {% endif %}
       </div>
-
-      <div class="receipt-final-row">
-        <span class="final-label">최종 결제 예정 금액</span>
-        <span class="final-amount" id="summaryFinal">{{ "{:,}".format(total_final) }}원</span>
-      </div>
-
-      <button type="submit" class="btn-pay-action">
-        결제 화면으로 이동 &gt;
-      </button>
-
-      {% if is_member %}
-        <div class="discount-banner">
-          🎉 회원 혜택으로 여행 상품 총 <strong>{{ "{:,}".format(total_discount) }}원</strong>의 우대 할인 혜택이 적용되었습니다.
-        </div>
-      {% else %}
-        <div class="guest-tip-banner">
-          💡 <strong>회원 가입 시</strong> 즉시 10~15% 회원 할인 혜택과 호텔/민박 연계 예약 혜택을 받으실 수 있습니다.
-        </div>
-      {% endif %}
     </div>
   </form>
 </div>

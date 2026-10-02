@@ -1,72 +1,72 @@
 {# pybo/templates/order/_detail_card.html - 로그인 및 비로그인 공통 상세 예약 정보 카드 컴포넌트 #}
 {% set item = order.items.first() %}
-<div class="reservation-detail-card" id="detailCard_{{ order.order_no }}">
+<div class="card shadow-sm border mb-4 reservation-detail-card" id="detailCard_{{ order.order_no }}">
   
   <!-- 상세 헤더: 주문번호 및 상태 -->
-  <div class="detail-card-header">
-    <div class="order-id-group">
-      <span class="order-label">예약 주문 번호</span>
-      <h2 class="order-no">{{ order.order_no }}</h2>
-      <span class="order-time">접수일시: {{ order.created_at.strftime('%Y년 %m월 %d일 %H:%M') }}</span>
+  <div class="card-header bg-light p-3 p-sm-4 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+    <div>
+      <span class="text-muted small d-block">예약 주문 번호</span>
+      <h2 class="h5 fw-bold text-dark font-monospace mb-1">{{ order.order_no }}</h2>
+      <span class="text-muted small">접수일시: {{ order.created_at.strftime('%Y년 %m월 %d일 %H:%M') }}</span>
     </div>
-    <div class="order-status-badge status-{{ order.status|lower }}">
+    <div>
       {% if order.status == 'COMPLETED' %}
-        <span class="dot">●</span> 예약 확정 (결제 완료)
+        <span class="badge bg-success-subtle text-success border border-success-subtle py-2 px-3 fs-6">● 예약 확정 (결제 완료)</span>
       {% elif order.status == 'PENDING' %}
-        <span class="dot">●</span> 결제 대기
+        <span class="badge bg-warning-subtle text-warning border border-warning-subtle py-2 px-3 fs-6">● 결제 대기</span>
       {% else %}
-        <span class="dot">●</span> 예약 취소
+        <span class="badge bg-secondary-subtle text-secondary border py-2 px-3 fs-6">● 예약 취소</span>
       {% endif %}
     </div>
   </div>
 
-  <div class="detail-card-body">
+  <div class="card-body p-3 p-sm-4">
     
     <!-- 1. 예약 여행 상품 정보 -->
-    <div class="detail-section">
-      <h4 class="section-title">1. 예약 여행 상품</h4>
+    <div class="mb-4 pb-3 border-bottom">
+      <h4 class="h6 fw-bold text-dark mb-3">1. 예약 여행 상품</h4>
       {% if item and item.product %}
-        <div class="detail-product-box">
-          <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="product-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-          <div class="product-info-col">
-            <span class="product-region-tag">📍 {{ item.product.region }}</span>
-            <h3 class="product-title">{{ item.product.name }}</h3>
-            <div class="product-meta-row">
+        <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center p-3 bg-light rounded-3 border">
+          <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="rounded-3 border object-fit-cover flex-shrink-0" style="width: 110px; height: 80px;" onerror="this.src='/static/img/default-tour.jpg'">
+          <div class="flex-grow-1">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-1">📍 {{ item.product.region }}</span>
+            <h3 class="h6 fw-bold text-dark mb-2">{{ item.product.name }}</h3>
+            <div class="d-flex flex-wrap gap-3 text-secondary small">
               {% if order.travel_date %}
-                <span>여행 날짜: <strong style="color: #2563eb;">📅 {{ order.travel_date }}</strong></span>
+                <span>여행 날짜: <strong class="text-primary">📅 {{ order.travel_date }}</strong></span>
               {% endif %}
-              <span>예약 인원: <strong>{{ item.quantity }}명</strong></span>
-              <span>1인 기준 적용가: <strong>{{ "{:,}".format(item.unit_price) }}원</strong></span>
+              <span>예약 인원: <strong class="text-dark">{{ item.quantity }}명</strong></span>
+              <span>1인 기준 적용가: <strong class="text-dark">{{ "{:,}".format(item.unit_price) }}원</strong></span>
             </div>
           </div>
         </div>
       {% else %}
-        <p class="text-muted">상품 정보를 불러올 수 없습니다.</p>
+        <p class="text-muted small">상품 정보를 불러올 수 없습니다.</p>
       {% endif %}
     </div>
 
     {# 1-2. 연계 숙박 예약 정보 (존재할 경우 표시) #}
     {% set acc_booking = order.accommodation_booking %}
     {% if acc_booking and acc_booking.accommodation %}
-    <div class="detail-section">
-      <h4 class="section-title">
-        🏨 연계 숙박 예약 정보
+    <div class="mb-4 pb-3 border-bottom">
+      <h4 class="h6 fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+        <span>🏨 연계 숙박 예약 정보</span>
         {% if acc_booking.accommodation.category == '호텔' %}
-          <span class="badge-cat-hotel">호텔</span>
+          <span class="badge bg-primary text-white">호텔</span>
         {% else %}
-          <span class="badge-cat-minbak">민박</span>
+          <span class="badge bg-success text-white">민박</span>
         {% endif %}
       </h4>
-      <div class="detail-product-box" style="background: #f8fbff; border: 1px solid #bfdbfe;">
-        <img src="{{ acc_booking.accommodation.image_url }}" alt="{{ acc_booking.accommodation.name }}" class="product-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-        <div class="product-info-col">
-          <span class="product-region-tag">📍 {{ acc_booking.accommodation.region }}</span>
-          <h3 class="product-title">{{ acc_booking.accommodation.name }}</h3>
-          <p style="font-size: 13px; color: #64748b; margin-bottom: 6px;">{{ acc_booking.accommodation.location }}</p>
-          <div class="product-meta-row">
-            <span>체크인: <strong style="color: #2563eb;">📅 {{ acc_booking.check_in_date or order.travel_date or '-' }}</strong></span>
-            <span>숙박 일수: <strong>{{ acc_booking.nights }}박</strong></span>
-            <span>1박 요금: <strong>{{ "{:,}".format(acc_booking.price_per_night) }}원</strong></span>
+      <div class="p-3 bg-primary-subtle border border-primary-subtle rounded-3 d-flex flex-column flex-sm-row gap-3 align-items-sm-center">
+        <img src="{{ acc_booking.accommodation.image_url }}" alt="{{ acc_booking.accommodation.name }}" class="rounded-3 border border-primary-subtle object-fit-cover flex-shrink-0" style="width: 110px; height: 80px;" onerror="this.src='/static/img/default-tour.jpg'">
+        <div class="flex-grow-1">
+          <span class="badge bg-primary text-white mb-1">📍 {{ acc_booking.accommodation.region }}</span>
+          <h3 class="h6 fw-bold text-dark mb-1">{{ acc_booking.accommodation.name }}</h3>
+          <p class="text-secondary small mb-2">📍 {{ acc_booking.accommodation.location }}</p>
+          <div class="d-flex flex-wrap gap-3 text-secondary small">
+            <span>체크인: <strong class="text-primary">📅 {{ acc_booking.check_in_date or order.travel_date or '-' }}</strong></span>
+            <span>숙박 일수: <strong class="text-dark">{{ acc_booking.nights }}박</strong></span>
+            <span>1박 요금: <strong class="text-dark">{{ "{:,}".format(acc_booking.price_per_night) }}원</strong></span>
           </div>
         </div>
       </div>
@@ -74,176 +74,164 @@
     {% endif %}
 
     <!-- 2. 예약자 정보 -->
-    <div class="detail-section">
-      <h4 class="section-title">
-        2. 예약자 정보
+    <div class="mb-4 pb-3 border-bottom">
+      <h4 class="h6 fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+        <span>2. 예약자 정보</span>
         {% if order.user %}
-          <span class="badge-member-tag">회원 예약</span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">회원 예약</span>
         {% else %}
-          <span class="badge-guest-tag">비회원 예약</span>
+          <span class="badge bg-secondary-subtle text-secondary border">비회원 예약</span>
         {% endif %}
       </h4>
-      <div class="detail-info-grid">
-        <div class="info-cell">
-          <span class="cell-label">성명</span>
-          <span class="cell-val">{{ order.user.name if order.user else (order.guest_name or '미입력') }}</span>
+      <div class="row g-2">
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 bg-light rounded-2 border">
+            <span class="text-muted small d-block">성명</span>
+            <span class="fw-bold text-dark">{{ order.user.name if order.user else (order.guest_name or '미입력') }}</span>
+          </div>
         </div>
-        <div class="info-cell">
-          <span class="cell-label">연락처</span>
-          <span class="cell-val">{{ order.user.phone if order.user else (order.guest_phone or '미입력') }}</span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 bg-light rounded-2 border">
+            <span class="text-muted small d-block">연락처</span>
+            <span class="fw-bold text-dark">{{ order.user.phone if order.user else (order.guest_phone or '미입력') }}</span>
+          </div>
         </div>
-        <div class="info-cell">
-          <span class="cell-label">이메일</span>
-          <span class="cell-val">{{ order.user.email if order.user else (order.guest_email or '미입력') }}</span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 bg-light rounded-2 border">
+            <span class="text-muted small d-block">이메일</span>
+            <span class="fw-bold text-dark text-truncate d-block">{{ order.user.email if order.user else (order.guest_email or '미입력') }}</span>
+          </div>
         </div>
-        <div class="info-cell">
-          <span class="cell-label">예약 계정 구분</span>
-          <span class="cell-val">
-            {% if order.user %}
-              회원 ID: {{ order.user.user_id }}
-            {% else %}
-              비회원 간편 예약
-            {% endif %}
-          </span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 bg-light rounded-2 border">
+            <span class="text-muted small d-block">예약 계정 구분</span>
+            <span class="fw-bold text-dark">{{ ('회원 ID: ' ~ order.user.user_id) if order.user else '비회원 간편 예약' }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 3. 결제 및 금액 상세 내역 -->
-    <div class="detail-section">
-      <h4 class="section-title">3. 결제 및 금액 상세 내역</h4>
+    <div class="mb-4 pb-3 border-bottom">
+      <h4 class="h6 fw-bold text-dark mb-3">3. 결제 및 금액 상세 내역</h4>
       
-      <div class="price-breakdown-box">
+      <div class="p-3 bg-light rounded-3 border mb-3">
         {% if acc_booking and acc_booking.accommodation %}
-          <div class="price-row">
-            <span>관광 여행 상품 금액 ({{ item.quantity if item else 1 }}명)</span>
-            <span>{{ "{:,}".format(order.original_amount - acc_booking.total_price) }}원</span>
+          <div class="d-flex justify-content-between py-1 small">
+            <span class="text-muted">관광 여행 상품 금액 ({{ item.quantity if item else 1 }}명)</span>
+            <span class="fw-semibold text-dark">{{ "{:,}".format(order.original_amount - acc_booking.total_price) }}원</span>
           </div>
-          <div class="price-row" style="color: #2563eb; font-weight: 600;">
+          <div class="d-flex justify-content-between py-1 small text-primary fw-semibold">
             <span>연계 숙박 요금 ([{{ acc_booking.accommodation.category }}] {{ acc_booking.accommodation.name }})</span>
             <span>+ {{ "{:,}".format(acc_booking.total_price) }}원</span>
           </div>
         {% else %}
-          <div class="price-row">
-            <span>정상 상품 총액 ({{ item.quantity if item else 1 }}명)</span>
-            <span>{{ "{:,}".format(order.original_amount) }}원</span>
+          <div class="d-flex justify-content-between py-1 small">
+            <span class="text-muted">정상 상품 총액 ({{ item.quantity if item else 1 }}명)</span>
+            <span class="fw-semibold text-dark">{{ "{:,}".format(order.original_amount) }}원</span>
           </div>
         {% endif %}
-        <div class="price-row discount-row">
-          <span>
-            {% if order.user %}
-              회원 특별 우대 할인
-            {% else %}
-              할인 금액
-            {% endif %}
-          </span>
-          <span>
-            {% if order.discount_amount > 0 %}
-              - {{ "{:,}".format(order.discount_amount) }}원
-            {% else %}
-              0원 (정가 결제)
-            {% endif %}
-          </span>
+        <div class="d-flex justify-content-between py-1 small text-danger fw-semibold">
+          <span>{{ '회원 특별 우대 할인' if order.user else '할인 금액' }}</span>
+          <span>{{ ('- ' ~ "{:,}".format(order.discount_amount) ~ '원') if order.discount_amount > 0 else '0원 (정가 결제)' }}</span>
         </div>
-        <div class="price-divider"></div>
-        <div class="price-row final-row">
-          <span>최종 결제 금액</span>
-          <span class="final-price-text">
-            {{ "{:,}".format(order.payment.paid_amount if order.payment else order.final_amount) }}원
-          </span>
+        <div class="border-top my-2"></div>
+        <div class="d-flex justify-content-between align-items-center pt-1">
+          <span class="fw-bold text-dark">최종 결제 금액</span>
+          <span class="fs-5 fw-bold text-danger">{{ "{:,}".format(order.payment.paid_amount if order.payment else order.final_amount) }}원</span>
         </div>
       </div>
 
       <!-- 결제 트랜잭션 정보 -->
-      <div class="payment-tx-grid">
-        <div class="tx-item">
-          <span class="tx-label">결제 수단</span>
-          <span class="tx-val">
-            {% if order.payment %}
-              {% if order.payment.payment_method == 'CARD' %}
-                신용/체크카드 (PortOne)
-              {% elif order.payment.payment_method == 'EASY_PAY' %}
-                간편결제
-              {% else %}
-                {{ order.payment.payment_method }}
-              {% endif %}
-            {% else %}
-              -
-            {% endif %}
-          </span>
+      <div class="row g-2">
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 border rounded-2 small">
+            <span class="text-muted d-block" style="font-size: 11px;">결제 수단</span>
+            <span class="fw-semibold text-dark">
+              {% if order.payment %}
+                {% if order.payment.payment_method == 'CARD' %}신용/체크카드 (PortOne)
+                {% elif order.payment.payment_method == 'EASY_PAY' %}간편결제
+                {% else %}{{ order.payment.payment_method }}{% endif %}
+              {% else %}-{% endif %}
+            </span>
+          </div>
         </div>
-        <div class="tx-item">
-          <span class="tx-label">결제 거래번호 (PortOne)</span>
-          <span class="tx-val tx-id-code">
-            {{ order.payment.transaction_id if (order.payment and order.payment.transaction_id) else '-' }}
-          </span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 border rounded-2 small">
+            <span class="text-muted d-block" style="font-size: 11px;">결제 거래번호 (PortOne)</span>
+            <span class="fw-semibold text-dark font-monospace text-truncate d-block">
+              {{ order.payment.transaction_id if (order.payment and order.payment.transaction_id) else '-' }}
+            </span>
+          </div>
         </div>
-        <div class="tx-item">
-          <span class="tx-label">결제 승인 일시</span>
-          <span class="tx-val">
-            {{ order.payment.paid_at.strftime('%Y.%m.%d %H:%M:%S') if (order.payment and order.payment.paid_at) else '-' }}
-          </span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 border rounded-2 small">
+            <span class="text-muted d-block" style="font-size: 11px;">결제 승인 일시</span>
+            <span class="fw-semibold text-dark">
+              {{ order.payment.paid_at.strftime('%Y.%m.%d %H:%M:%S') if (order.payment and order.payment.paid_at) else '-' }}
+            </span>
+          </div>
         </div>
-        <div class="tx-item">
-          <span class="tx-label">결제 처리 상태</span>
-          <span class="tx-val">
-            <span class="tx-status-success">✓ 승인 성공 (SUCCESS)</span>
-          </span>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="p-2 border rounded-2 small">
+            <span class="text-muted d-block" style="font-size: 11px;">결제 처리 상태</span>
+            <span class="fw-bold text-success">✓ 승인 성공 (SUCCESS)</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 4. 약관 및 개인정보 동의 이력 -->
-    <div class="detail-section">
-      <h4 class="section-title">4. 약관 및 개인정보 동의 이력</h4>
-      <div class="terms-summary-tags">
-        <span class="terms-tag agreed">✓ 국내여행 특별약관 [필수 동의]</span>
-        <span class="terms-tag agreed">✓ 개인정보 제3자 제공 [필수 동의]</span>
-        <span class="terms-tag agreed">✓ 민감정보 수집 및 이용 [필수 동의]</span>
+    <div class="mb-4 pb-3 border-bottom">
+      <h4 class="h6 fw-bold text-dark mb-3">4. 약관 및 개인정보 동의 이력</h4>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6">✓ 국내여행 특별약관 [필수 동의]</span>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6">✓ 개인정보 제3자 제공 [필수 동의]</span>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6">✓ 민감정보 수집 및 이용 [필수 동의]</span>
         {% if order.agree_location %}
-          <span class="terms-tag agreed">✓ 위치 정보 이용 [선택 동의]</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle py-2 px-3 fs-6">✓ 위치 정보 이용 [선택 동의]</span>
         {% else %}
-          <span class="terms-tag opt-out">- 위치 정보 이용 [선택 미동의]</span>
+          <span class="badge bg-secondary-subtle text-secondary border py-2 px-3 fs-6">- 위치 정보 이용 [선택 미동의]</span>
         {% endif %}
       </div>
     </div>
 
     <!-- 5. 연관된 근처 추천 관광지 (슬라이드) -->
-    <div class="detail-section" style="padding-bottom: 24px;">
+    <div class="mb-4 pb-3 border-bottom">
       {% with order=order, carousel_id='nearbySlide_' ~ order.order_no %}
         {% include 'order/_nearby_slide.html' %}
       {% endwith %}
     </div>
 
     <!-- 6. 예약 취소 및 결제 취소 관리 -->
-    <div class="detail-section detail-cancel-section">
-      <div class="cancel-flex-wrapper">
-        <div class="cancel-info-col">
-          <h4 class="cancel-title">
+    <div>
+      <div class="alert alert-light border d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 p-3 mb-0" role="alert">
+        <div>
+          <h4 class="h6 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
             <span>⚙️ 예약 및 결제 관리</span>
           </h4>
-          <p class="cancel-desc">
+          <p class="small text-secondary mb-0">
             {% if order.is_past_travel_date %}
-              <span class="text-danger font-semibold">※ 여행 출발일({{ order.travel_date }})이 지난 예약은 규정상 결제 취소가 불가합니다.</span>
+              <span class="text-danger fw-semibold">※ 여행 출발일({{ order.travel_date }})이 지난 예약은 규정상 결제 취소가 불가합니다.</span>
             {% else %}
               여행 출발일 전까지 예약을 취소하실 수 있습니다. 취소 시 결제 내역과 예약 데이터가 완전히 삭제됩니다.
             {% endif %}
           </p>
         </div>
 
-        <div class="cancel-btn-col">
+        <div class="flex-shrink-0">
           {% if order.is_past_travel_date %}
-            <button type="button" class="btn-order-cancel disabled" disabled title="여행 이용일이 지나 취소가 불가합니다.">
+            <button type="button" class="btn btn-secondary btn-sm" disabled title="여행 이용일이 지나 취소가 불가합니다.">
               취소불가
             </button>
           {% else %}
             <form action="{{ url_for('order.cancel', order_no=order.order_no) }}" method="POST"
                   onsubmit="return confirm('정말로 주문번호 [{{ order.order_no }}] 예약을 취소하시겠습니까?\n취소 시 결제 내역과 주문 정보가 즉시 삭제됩니다.');"
-                  style="display: inline;">
+                  class="d-inline">
               {% if not order.user %}
                 <input type="hidden" name="guest_name" value="{{ order.guest_name or '' }}">
               {% endif %}
-              <button type="submit" class="btn-order-cancel active">
+              <button type="submit" class="btn btn-outline-danger btn-sm fw-bold px-3">
                 결제 취소
               </button>
             </form>

@@ -6,25 +6,27 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lookup.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/nearby_slide.css') }}">
 
-<div class="container page-content">
+<div class="container-lg py-4 lookup-container" id="lookupApp">
   
-  <!-- 페이지 헤더 -->
-  <div class="page-header">
-    <h1>예약 확인 및 조회</h1>
-    <p>
-      {% if is_member %}
-        <strong>{{ logged_user.name }}</strong> 회원님의 예약 내역입니다. 최신 예약순으로 정렬되며, 항목을 클릭하시면 상세 예약 정보를 확인하실 수 있습니다.
-      {% else %}
-        비회원으로 예약하신 경우 예약자 성함과 주문번호를 입력하시면 예약 상세 정보를 확인하실 수 있습니다.
-      {% endif %}
-    </p>
+  <!-- 페이지 상단 헤더 -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1 text-dark">예약 확인 및 조회</h1>
+      <p class="text-muted mb-0 small">
+        {% if is_member %}
+          <strong>{{ logged_user.name }}</strong> 회원님의 예약 내역입니다. 최신 예약순으로 정렬되며, 항목을 클릭하시면 상세 예약 정보를 확인하실 수 있습니다.
+        {% else %}
+          비회원으로 예약하신 경우 예약자 성함과 주문번호를 입력하시면 예약 상세 정보를 확인하실 수 있습니다.
+        {% endif %}
+      </p>
+    </div>
   </div>
 
   <!-- 알림 및 플래시 메시지 -->
   {% for category, message in get_flashed_messages(with_categories=true) %}
-    <div class="alert alert-{{ category }} lookup-alert" role="alert">
-      <span>{% if category == 'success' %}✅{% elif category == 'danger' %}⚠️{% else %}ℹ️{% endif %}</span>
-      <span>{{ message }}</span>
+    <div class="alert alert-{{ category }} d-flex align-items-center gap-2 shadow-sm mb-4" role="alert">
+      <span class="fs-5">{% if category == 'success' %}✅{% elif category == 'danger' %}⚠️{% else %}ℹ️{% endif %}</span>
+      <div>{{ message }}</div>
     </div>
   {% endfor %}
 
@@ -33,33 +35,39 @@
     <div class="member-lookup-container">
       
       <!-- 회원 상태 바 -->
-      <div class="user-status-bar">
-        <div class="user-meta">
-          <span class="user-avatar">👤</span>
-          <div>
-            <strong>{{ logged_user.name }}</strong> 님 환영합니다!
-            <span class="text-muted" style="font-size: 13px; margin-left: 6px;">({{ logged_user.email }})</span>
+      <div class="card shadow-sm border mb-4">
+        <div class="card-body p-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <span class="fs-4 bg-primary-subtle text-primary p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">👤</span>
+            <div>
+              <span class="fw-bold text-dark fs-6">{{ logged_user.name }}</span> 님 환영합니다!
+              <small class="text-muted ms-2">({{ logged_user.email }})</small>
+            </div>
           </div>
-        </div>
-        <div class="user-actions">
-          <span class="count-tag">총 <strong>{{ orders|length }}</strong>건의 예약</span>
-          <a href="{{ url_for('auth.logout') }}" class="btn-sub-link">로그아웃</a>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6 fw-normal">
+              총 <strong class="fw-bold">{{ orders|length }}</strong>건의 예약
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary btn-sm">로그아웃</a>
+          </div>
         </div>
       </div>
 
       {% if detail_order %}
-        <!-- 특정 주문 상세 보기 모드인 경우 상단에 상세 카드 노출 -->
-        <div class="selected-detail-banner">
-          <span>📋 선택하신 주문번호 <strong>{{ detail_order.order_no }}</strong>의 상세 정보입니다.</span>
-          <a href="{{ url_for('order.lookup') }}" class="btn-back-list">&lt; 전체 목록으로 보기</a>
+        <!-- 특정 주문 상세 보기 모드인 경우 상단에 안내 배너 노출 -->
+        <div class="alert alert-primary d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4 shadow-sm" role="alert">
+          <div>
+            📋 선택하신 주문번호 <strong class="font-monospace">{{ detail_order.order_no }}</strong>의 상세 정보입니다.
+          </div>
+          <a href="{{ url_for('order.lookup') }}" class="btn btn-primary btn-sm flex-shrink-0">&lt; 전체 목록으로 보기</a>
         </div>
 
         {% with order=detail_order %}
           {% include 'order/_detail_card.html' %}
         {% endwith %}
 
-        <div style="margin-top: 24px; text-align: center;">
-          <a href="{{ url_for('order.lookup') }}" class="btn-outline-back">
+        <div class="text-center mt-4">
+          <a href="{{ url_for('order.lookup') }}" class="btn btn-outline-secondary">
             &lt; 전체 예약 목록으로 돌아가기
           </a>
         </div>
@@ -68,76 +76,78 @@
 
         {% if orders|length == 0 %}
           <!-- 예약 내역 없음 -->
-          <div class="empty-state-box">
-            <span class="empty-icon">🏖️</span>
-            <h3>예약된 여행 상품 내역이 없습니다.</h3>
-            <p>다양한 국내 여행 패키지를 둘러보시고 특별한 힐링 여행을 떠나보세요!</p>
-            <a href="/" class="btn-primary-action">추천 여행 상품 둘러보기</a>
+          <div class="card shadow-sm border text-center p-5 my-4">
+            <div class="card-body">
+              <div class="display-3 mb-3">🏖️</div>
+              <h3 class="h5 fw-bold text-dark mb-2">예약된 여행 상품 내역이 없습니다.</h3>
+              <p class="text-muted small mb-4">다양한 국내 여행 패키지를 둘러보시고 특별한 힐링 여행을 떠나보세요!</p>
+              <a href="/" class="btn btn-primary fw-bold px-4 py-2">추천 여행 상품 둘러보기</a>
+            </div>
           </div>
         {% else %}
           <!-- 예약 목록 (최신순 정렬) -->
-          <div class="reservation-list" id="reservationList">
+          <div class="d-flex flex-column gap-3" id="reservationList">
             {% for o in orders %}
               {% set item = o.items.first() %}
-              <div class="order-list-card" id="orderCard_{{ o.order_no }}">
+              <div class="card shadow-sm border order-list-card" id="orderCard_{{ o.order_no }}">
                 
                 <!-- 카드 요약 헤더 (클릭 시 토글) -->
-                <div class="card-summary-row" onclick="toggleOrderDetail('{{ o.order_no }}')">
-                  
-                  <!-- 상품 썸네일 -->
-                  {% if item and item.product %}
-                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="card-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-                  {% else %}
-                    <div class="card-thumb-placeholder">여행</div>
-                  {% endif %}
+                <div class="card-body p-3 card-summary-row" onclick="toggleOrderDetail('{{ o.order_no }}')" style="cursor: pointer;">
+                  <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                    
+                    <!-- 상품 썸네일 -->
+                    {% if item and item.product %}
+                      <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="rounded-3 border object-fit-cover flex-shrink-0" style="width: 90px; height: 70px;" onerror="this.src='/static/img/default-tour.jpg'">
+                    {% else %}
+                      <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center text-muted small flex-shrink-0" style="width: 90px; height: 70px;">여행</div>
+                    {% endif %}
 
-                  <!-- 요약 메타 정보 -->
-                  <div class="card-summary-info">
-                    <div class="summary-top-line">
-                      <span class="order-date">{{ o.created_at.strftime('%Y.%m.%d %H:%M') }}</span>
-                      <span class="order-num-text">주문번호: {{ o.order_no }}</span>
-                      <span class="badge-status status-{{ o.status|lower }}">
+                    <!-- 요약 메타 정보 -->
+                    <div class="flex-grow-1 min-w-0">
+                      <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                        <span class="fw-bold small text-dark">{{ o.created_at.strftime('%Y.%m.%d %H:%M') }}</span>
+                        <span class="text-muted small font-monospace">주문번호: {{ o.order_no }}</span>
                         {% if o.status == 'COMPLETED' %}
-                          예약 확정
+                          <span class="badge bg-success-subtle text-success border border-success-subtle">예약 확정</span>
                         {% elif o.status == 'PENDING' %}
-                          결제 대기
+                          <span class="badge bg-warning-subtle text-warning border border-warning-subtle">결제 대기</span>
                         {% else %}
-                          예약 취소
+                          <span class="badge bg-secondary-subtle text-secondary border">예약 취소</span>
                         {% endif %}
-                      </span>
+                      </div>
+
+                      <h3 class="h6 fw-bold text-dark text-truncate mb-2">
+                        {% if item and item.product %}
+                          {{ item.product.name }}
+                        {% else %}
+                          여행 상품
+                        {% endif %}
+                      </h3>
+
+                      <div class="d-flex flex-wrap align-items-center gap-3 text-secondary small">
+                        {% if o.travel_date %}
+                          <span>여행일: <strong class="text-primary">📅 {{ o.travel_date }}</strong></span>
+                        {% endif %}
+                        <span>인원: <strong class="text-dark">{{ item.quantity if item else 1 }}명</strong></span>
+                        <span>권역: <strong class="text-dark">{{ item.product.region if (item and item.product) else '-' }}</strong></span>
+                        <span class="text-danger fw-bold ms-auto">
+                          최종 결제 금액: <span class="fs-6">{{ "{:,}".format(o.payment.paid_amount if o.payment else o.final_amount) }}원</span>
+                        </span>
+                      </div>
                     </div>
 
-                    <h3 class="product-name">
-                      {% if item and item.product %}
-                        {{ item.product.name }}
-                      {% else %}
-                        여행 상품
-                      {% endif %}
-                    </h3>
-
-                    <div class="summary-bottom-line">
-                      {% if o.travel_date %}
-                        <span class="meta-item">여행일: <strong style="color: #2563eb;">📅 {{ o.travel_date }}</strong></span>
-                      {% endif %}
-                      <span class="meta-item">인원: <strong>{{ item.quantity if item else 1 }}명</strong></span>
-                      <span class="meta-item">권역: <strong>{{ item.product.region if (item and item.product) else '-' }}</strong></span>
-                      <span class="meta-price">
-                        최종 결제 금액: <strong>{{ "{:,}".format(o.payment.paid_amount if o.payment else o.final_amount) }}원</strong>
-                      </span>
+                    <!-- 펼치기/접기 버튼 -->
+                    <div class="flex-shrink-0 align-self-md-center">
+                      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="expandBtn_{{ o.order_no }}">
+                        상세 정보 <span>▼</span>
+                      </button>
                     </div>
-                  </div>
-
-                  <!-- 펼치기/접기 버튼 -->
-                  <div class="expand-btn-wrap">
-                    <button type="button" class="btn-expand" id="expandBtn_{{ o.order_no }}">
-                      상세 정보 <span>▼</span>
-                    </button>
                   </div>
                 </div>
 
                 <!-- 아코디언 상세 영역 (숨김/펼침) -->
-                <div class="accordion-detail-content" id="detailWrap_{{ o.order_no }}" style="display: none;">
-                  <div class="accordion-inner">
+                <div class="border-top bg-light accordion-detail-content" id="detailWrap_{{ o.order_no }}" style="display: none;">
+                  <div class="p-3 p-md-4">
                     {% with order=o %}
                       {% include 'order/_detail_card.html' %}
                     {% endwith %}
@@ -158,78 +168,80 @@
     <div class="guest-lookup-container">
       
       {% if detail_order %}
-        <!-- 비회원 예약 조회 성공 시: 로그인 상세와 100% 동일한 상세 카드 표시 -->
-        <div class="guest-result-header">
-          <div class="result-title">
-            <span class="check-icon">✓</span>
+        <!-- 비회원 예약 조회 성공 시 -->
+        <div class="alert alert-success d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 p-3 mb-4 shadow-sm" role="alert">
+          <div class="d-flex align-items-center gap-3">
+            <span class="fs-3">✅</span>
             <div>
-              <h3>예약 조회 성공</h3>
-              <p>입력하신 정보와 일치하는 예약 내역을 불러왔습니다.</p>
+              <h3 class="h6 fw-bold mb-1 text-success">예약 조회 성공</h3>
+              <p class="mb-0 text-success-emphasis small">입력하신 정보와 일치하는 예약 내역을 불러왔습니다.</p>
             </div>
           </div>
-          <a href="{{ url_for('order.lookup') }}" class="btn-retry-search">다른 예약 조회하기</a>
+          <a href="{{ url_for('order.lookup') }}" class="btn btn-outline-success btn-sm flex-shrink-0 fw-bold">다른 예약 조회하기</a>
         </div>
 
         {% with order=detail_order %}
           {% include 'order/_detail_card.html' %}
         {% endwith %}
 
-        <div style="margin-top: 28px; text-align: center;">
-          <a href="{{ url_for('order.lookup') }}" class="btn-outline-back">
+        <div class="text-center mt-4">
+          <a href="{{ url_for('order.lookup') }}" class="btn btn-outline-secondary">
             &lt; 비회원 예약 조회 화면으로 돌아가기
           </a>
         </div>
 
       {% else %}
-        <!-- 비회원 조회 입력 폼 -->
-        <div class="guest-search-card">
-          <div class="guest-search-header">
-            <span class="search-icon">🔎</span>
-            <h2>비회원 예약 내역 조회</h2>
-            <p>예약 시 기재하신 <strong>예약자 성함</strong>과 <strong>주문번호</strong>를 입력해주세요.</p>
-          </div>
-
-          {% if error_msg %}
-            <div class="alert-error-box">
-              <span>⚠️</span>
-              <div>{{ error_msg }}</div>
-            </div>
-          {% endif %}
-
-          <form action="{{ url_for('order.lookup') }}" method="POST" class="guest-search-form" id="guestSearchForm">
-            <div class="form-group">
-              <label for="guest_name" class="form-label">예약자 성함 *</label>
-              <input type="text" id="guest_name" name="guest_name" value="{{ guest_name or '' }}" required class="form-control" placeholder="예약 시 입력하신 성명">
+        <!-- 비회원 조회 입력 폼 (Bootstrap Card) -->
+        <div class="card shadow-sm border mx-auto my-4" style="max-width: 520px;">
+          <div class="card-body p-4 p-sm-5">
+            <div class="text-center mb-4">
+              <span class="display-5 mb-2 d-inline-block">🔎</span>
+              <h2 class="h4 fw-bold text-dark mb-1">비회원 예약 내역 조회</h2>
+              <p class="text-muted small">예약 시 기재하신 <strong>예약자 성함</strong>과 <strong>주문번호</strong>를 입력해주세요.</p>
             </div>
 
-            <div class="form-group">
-              <label for="order_no" class="form-label">주문번호 *</label>
-              <input type="text" id="order_no" name="order_no" value="{{ order_no or '' }}" required class="form-control" placeholder="예: ORD-20260923085033-2725D1">
-            </div>
+            {% if error_msg %}
+              <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert">
+                <span>⚠️</span>
+                <div class="small">{{ error_msg }}</div>
+              </div>
+            {% endif %}
 
-            <button type="submit" class="btn-search-submit">
-              예약 내역 조회하기 &gt;
-            </button>
-          </form>
+            <form action="{{ url_for('order.lookup') }}" method="POST" class="mb-4" id="guestSearchForm">
+              <div class="mb-3">
+                <label for="guest_name" class="form-label fw-bold small">예약자 성함 <span class="text-danger">*</span></label>
+                <input type="text" id="guest_name" name="guest_name" value="{{ guest_name or '' }}" required class="form-control" placeholder="예약 시 입력하신 성명">
+              </div>
 
-          <!-- 빠른 테스트 편의를 위한 샘플 주문번호 클릭 입력 바 -->
-          <div class="test-helper-card">
-            <span class="helper-badge">💡 빠른 테스트 입력</span>
-            <p>DB에 등록된 샘플 예약 정보로 원클릭 조회해보세요:</p>
-            <div class="sample-buttons">
-              <button type="button" class="btn-sample-fill" onclick="fillSample('테스트고객', 'ORD-20260923085033-2725D1')">
-                테스트고객 (ORD-20260923085033-2725D1)
+              <div class="mb-4">
+                <label for="order_no" class="form-label fw-bold small">주문번호 <span class="text-danger">*</span></label>
+                <input type="text" id="order_no" name="order_no" value="{{ order_no or '' }}" required class="form-control font-monospace" placeholder="예: ORD-20260923085033-2725D1">
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-6 shadow-sm">
+                예약 내역 조회하기 &gt;
               </button>
-              <button type="button" class="btn-sample-fill" onclick="fillSample('테스트고객', 'ORD-20260923084617-62642E')">
-                테스트고객 (ORD-20260923084617-62642E)
-              </button>
-            </div>
-          </div>
+            </form>
 
-          <!-- 로그인 유도 링크 -->
-          <div class="login-switch-footer">
-            <span>회원으로 예약하셨나요?</span>
-            <a href="{{ url_for('auth.login') }}">회원 로그인 후 예약 확인하기 &gt;</a>
+            <!-- 빠른 테스트 편의를 위한 샘플 주문번호 클릭 입력 바 -->
+            <div class="p-3 bg-light border border-dashed rounded-3 mb-4">
+              <span class="badge bg-secondary-subtle text-secondary border mb-2">💡 빠른 테스트 입력</span>
+              <p class="text-muted small mb-2">DB에 등록된 샘플 예약 정보로 원클릭 조회해보세요:</p>
+              <div class="d-flex flex-column gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm text-start" onclick="fillSample('테스트고객', 'ORD-20260923085033-2725D1')">
+                  테스트고객 (ORD-20260923085033-2725D1)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm text-start" onclick="fillSample('테스트고객', 'ORD-20260923084617-62642E')">
+                  테스트고객 (ORD-20260923084617-62642E)
+                </button>
+              </div>
+            </div>
+
+            <!-- 로그인 유도 링크 -->
+            <div class="text-center small text-muted">
+              <span>회원으로 예약하셨나요?</span>
+              <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold text-decoration-none ms-1">회원 로그인 후 예약 확인하기 &gt;</a>
+            </div>
           </div>
         </div>
 

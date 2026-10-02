@@ -5,183 +5,215 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">
 
-<div class="container page-content">
-  <div class="page-header">
-    <h1>결제 진행</h1>
-    <p>예약 정보 및 여행객 명단을 확인하신 후 결제를 진행해주세요.</p>
+<div class="container-lg py-4 payment-container" id="payment-container">
+  <!-- 페이지 상단 헤더 -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1 text-dark">결제 진행</h1>
+      <p class="text-muted mb-0 small">예약 정보 및 여행객 명단을 확인하신 후 결제를 진행해주세요.</p>
+    </div>
   </div>
 
   <div class="checkout-layout">
     <div class="checkout-main">
       
       <!-- 1. 예약 상품 정보 -->
-      <div class="card-section">
-        <h3>1. 예약 상품 정보</h3>
-        <div class="product-summary-box">
-          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-thumb" onerror="this.src='/static/img/default-tour.jpg'">
-          <div class="product-info">
-            <h4>{{ product.name }}</h4>
-            <p class="text-muted" style="font-size: 13px;">
-              권역: {{ product.region }} | 예약 인원: <strong>{{ headcount }}명</strong>
-              {% if travel_date %}
-                | 여행 날짜: <strong style="color: #2563eb;">📅 {{ travel_date }}</strong>
-              {% endif %}
-            </p>
-            <p class="text-muted" style="font-size: 13px;">예약자: {{ reserver_name }} ({{ reserver_phone }})</p>
-          </div>
-        </div>
-
-        {% if selected_accommodation %}
-        <!-- 연계 숙박 예약 요약 박스 -->
-        <div style="margin-top: 14px; padding: 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; display: flex; align-items: center; gap: 14px;">
-          <img src="{{ selected_accommodation.image_url }}" alt="{{ selected_accommodation.name }}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #bfdbfe;" onerror="this.src='/static/img/default-tour.jpg'">
-          <div style="flex: 1;">
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-              {% if selected_accommodation.category == '호텔' %}
-                <span class="badge-cat-hotel">호텔</span>
-              {% else %}
-                <span class="badge-cat-minbak">민박</span>
-              {% endif %}
-              <h5 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">{{ selected_accommodation.name }}</h5>
-            </div>
-            <p style="margin: 0; font-size: 12px; color: #475569;">
-              📍 {{ selected_accommodation.location }} | 1박 요금: <strong style="color: #2563eb;">{{ "{:,}".format(selected_accommodation.price_per_night) }}원</strong>
-            </p>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- 2. 여행객 명단 확인 -->
-      <div class="card-section">
-        <h3>2. 탑승 및 여행객 명단 (총 {{ headcount }}명)</h3>
-        <table class="traveler-table">
-          <thead>
-            <tr>
-              <th style="width: 60px;">번호</th>
-              <th>성명</th>
-              <th style="width: 80px;">성별</th>
-              <th>연락처</th>
-              <th>생년월일</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for t in travelers %}
-              <tr>
-                <td>{{ t.index }}</td>
-                <td>
-                  <strong>{{ t.name }}</strong>
-                  {% if t.index == 1 %}
-                    <span class="badge-rep">대표</span>
+      <div class="card shadow-sm border mb-4">
+        <div class="card-body p-4">
+          <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center gap-2 text-dark">
+            <span>📦 1. 예약 상품 정보</span>
+          </h3>
+          <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between p-3 bg-light rounded-3 border">
+            <div class="d-flex align-items-center gap-3">
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" class="rounded-3 border object-fit-cover flex-shrink-0" style="width: 100px; height: 75px;" onerror="this.src='/static/img/default-tour.jpg'">
+              <div>
+                <h4 class="h6 fw-bold mb-1 text-dark">{{ product.name }}</h4>
+                <p class="text-muted small mb-1">
+                  권역: {{ product.region }} | 예약 인원: <strong>{{ headcount }}명</strong>
+                  {% if travel_date %}
+                    | 여행 날짜: <strong class="text-primary">📅 {{ travel_date }}</strong>
                   {% endif %}
-                </td>
-                <td>{{ t.gender }}</td>
-                <td>{{ t.phone }}</td>
-                <td>{{ t.birth }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+                </p>
+                <p class="text-muted small mb-0">예약자: {{ reserver_name }} ({{ reserver_phone }})</p>
+              </div>
+            </div>
+          </div>
 
-      <!-- 3. 약관 동의 확인 -->
-      <div class="card-section">
-        <h3>3. 약관 및 개인정보 동의 확인</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px;">
-          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 국내여행 특별약관 [동의]</span>
-          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 개인정보 제3자 제공 [동의]</span>
-          <span style="background: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 민감정보 수집 및 이용 [동의]</span>
-          {% if agree_location %}
-            <span style="background: #eff6ff; color: #059669; padding: 6px 12px; border-radius: 6px; font-weight: 600;">✓ 위치 정보 이용 [동의]</span>
-          {% else %}
-            <span style="background: #f8fafc; color: #94a3b8; padding: 6px 12px; border-radius: 6px;">- 위치 정보 이용 [미동의]</span>
+          {% if selected_accommodation %}
+          <!-- 연계 숙박 예약 요약 박스 -->
+          <div class="mt-3 p-3 bg-primary-subtle border border-primary-subtle rounded-3 d-flex align-items-center gap-3">
+            <img src="{{ selected_accommodation.image_url }}" alt="{{ selected_accommodation.name }}" class="rounded-2 border border-primary-subtle object-fit-cover flex-shrink-0" style="width: 80px; height: 60px;" onerror="this.src='/static/img/default-tour.jpg'">
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                {% if selected_accommodation.category == '호텔' %}
+                  <span class="badge bg-primary text-white">호텔</span>
+                {% else %}
+                  <span class="badge bg-success text-white">민박</span>
+                {% endif %}
+                <h5 class="h6 fw-bold mb-0 text-dark">{{ selected_accommodation.name }}</h5>
+              </div>
+              <p class="text-secondary small mb-0">
+                📍 {{ selected_accommodation.location }} | 1박 요금: <strong class="text-primary">{{ "{:,}".format(selected_accommodation.price_per_night) }}원</strong>
+              </p>
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
 
-      <!-- 4. 최종 결제 금액 (PortOne 결제 연동) -->
-      <div class="card-section" id="finalPaymentSection">
-        <h3>4. 최종 결제 금액</h3>
-        <form id="paymentForm" action="{{ url_for('order.pay_complete') }}" method="POST"
-          data-store-id="store-7f00ba71-7aff-42b3-b1e7-2e6e2e19a745"
-          data-channel-key="channel-key-8aa7da59-1180-4c4e-9723-ed30e22b7ff4"
-          data-order-name="{{ product.name }}{% if selected_accommodation %} + [{{ selected_accommodation.category }}] {{ selected_accommodation.name }}{% endif %}"
-          data-total-amount="{{ total_final }}"          
-          data-reserver-name="{{ reserver_name }}"
-          data-reserver-phone="{{ reserver_phone }}"
-          data-reserver-email="{{ reserver_email }}"
-        >
-          <input type="hidden" name="product_id" value="{{ product.id }}">
-          <input type="hidden" name="headcount" value="{{ headcount }}">
-          <input type="hidden" name="travel_date" value="{{ travel_date }}">
-          <input type="hidden" name="reserver_name" value="{{ reserver_name }}">
-          <input type="hidden" name="reserver_phone" value="{{ reserver_phone }}">
-          <input type="hidden" name="reserver_email" value="{{ reserver_email }}">
-          <input type="hidden" name="travelers_json" value="{{ travelers_json }}">
-          <input type="hidden" name="accommodation_id" value="{{ selected_accommodation.id if selected_accommodation else '' }}">
-          <input type="hidden" name="agree_special" value="{{ '1' if agree_special else '0' }}">
-          <input type="hidden" name="agree_privacy" value="{{ '1' if agree_privacy else '0' }}">
-          <input type="hidden" name="agree_sensitive" value="{{ '1' if agree_sensitive else '0' }}">
-          <input type="hidden" name="agree_location" value="{{ '1' if agree_location else '0' }}">
-          <input type="hidden" name="payment_method" value="CARD">
-          <input type="hidden" name="portone_payment_id" id="portonePaymentId" value="">
-          <input type="hidden" name="portone_tx_id" id="portoneTxId" value="">
-          <input type="hidden" name="paid_amount" id="formPaidAmount" value="{{ total_final }}">
-
-          <div class="final-amount-box">
-            <!-- 금액 상세 요약 -->
-            <div class="amount-detail-grid {% if selected_accommodation %}has-acc{% endif %}">
-              <div class="amount-detail-item">
-                <span class="detail-label">여행 상품 금액 ({{ headcount }}명)</span>
-                <span class="detail-val">{{ "{:,}".format(tour_original if tour_original else total_original) }}원</span>
-              </div>
-              <div class="amount-detail-item">
-                <span class="detail-label">
-                  {% if is_member %}
-                    회원 우대 할인 ({{ (product.member_discount_rate * 100)|int }}%)
-                  {% else %}
-                    회원 할인 (비회원 정가)
-                  {% endif %}
-                </span>
-                <span class="detail-val discount">
-                  {% if is_member %}
-                    - {{ "{:,}".format(total_discount) }}원
-                  {% else %}
-                    0원
-                  {% endif %}
-                </span>
-              </div>
-              {% if selected_accommodation %}
-              <div class="amount-detail-item">
-                <span class="detail-label">연계 숙박 ({{ selected_accommodation.category }})</span>
-                <span class="detail-val" style="color: #2563eb;">+ {{ "{:,}".format(accommodation_price) }}원</span>
-              </div>
-              {% endif %}
-              <div class="amount-detail-item">
-                <span class="detail-label">최종 결제 금액</span>
-                <span class="detail-val" style="color: var(--accent);">{{ "{:,}".format(total_final) }}원</span>
-              </div>
-            </div>
-
-            <!-- PortOne 결제 안내 바 -->
-            <div class="final-highlight-bar">
-              <div class="final-highlight-left">
-                <div class="highlight-title">
-                  <span>💳 신용카드 결제</span>                  
-                </div>
-                <p class="highlight-desc">신용/체크카드로 전자결제가 안전하게 진행됩니다.</p>
-              </div>
-            </div>
-
-            <button type="submit" class="btn-pay-main" id="btnPayMain">
-              {{ "{:,}".format(total_final) }}원 결제하기 (PortOne)
-            </button>
-
-            <a href="{{ url_for('order.reserve', product_id=product.id, headcount=headcount) }}" class="btn-back-link">
-              &lt; 예약 정보 수정하기
-            </a>
+      <!-- 2. 여행객 명단 확인 -->
+      <div class="card shadow-sm border mb-4">
+        <div class="card-body p-4">
+          <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between text-dark">
+            <span>👥 2. 탑승 및 여행객 명단</span>
+            <span class="fs-6 fw-normal text-muted">(총 <strong class="text-primary">{{ headcount }}</strong>명)</span>
+          </h3>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" style="width: 60px;" class="text-center">번호</th>
+                  <th scope="col">성명</th>
+                  <th scope="col" style="width: 80px;" class="text-center">성별</th>
+                  <th scope="col">연락처</th>
+                  <th scope="col">생년월일</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in travelers %}
+                  <tr>
+                    <td class="text-center text-muted fw-semibold">{{ t.index }}</td>
+                    <td>
+                      <strong class="text-dark">{{ t.name }}</strong>
+                      {% if t.index == 1 %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">대표</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">{{ t.gender }}</td>
+                    <td>{{ t.phone }}</td>
+                    <td>{{ t.birth }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-        </form>
+        </div>
+      </div>
+
+      <!-- 3. 약관 동의 확인 -->
+      <div class="card shadow-sm border mb-4">
+        <div class="card-body p-4">
+          <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom text-dark">
+            <span>📋 3. 약관 및 개인정보 동의 확인</span>
+          </h3>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6 fw-semibold">✓ 국내여행 특별약관 [동의]</span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6 fw-semibold">✓ 개인정보 제3자 제공 [동의]</span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2 px-3 fs-6 fw-semibold">✓ 민감정보 수집 및 이용 [동의]</span>
+            {% if agree_location %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle py-2 px-3 fs-6 fw-semibold">✓ 위치 정보 이용 [동의]</span>
+            {% else %}
+              <span class="badge bg-secondary-subtle text-secondary border py-2 px-3 fs-6">- 위치 정보 이용 [미동의]</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 최종 결제 금액 (PortOne 결제 연동) -->
+      <div class="card border-primary border-2 shadow-sm mb-4" id="finalPaymentSection">
+        <div class="card-body p-4">
+          <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom text-dark">
+            <span>💳 4. 최종 결제 금액</span>
+          </h3>
+          <form id="paymentForm" action="{{ url_for('order.pay_complete') }}" method="POST"
+            data-store-id="store-7f00ba71-7aff-42b3-b1e7-2e6e2e19a745"
+            data-channel-key="channel-key-8aa7da59-1180-4c4e-9723-ed30e22b7ff4"
+            data-order-name="{{ product.name }}{% if selected_accommodation %} + [{{ selected_accommodation.category }}] {{ selected_accommodation.name }}{% endif %}"
+            data-total-amount="{{ total_final }}"          
+            data-reserver-name="{{ reserver_name }}"
+            data-reserver-phone="{{ reserver_phone }}"
+            data-reserver-email="{{ reserver_email }}"
+          >
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="headcount" value="{{ headcount }}">
+            <input type="hidden" name="travel_date" value="{{ travel_date }}">
+            <input type="hidden" name="reserver_name" value="{{ reserver_name }}">
+            <input type="hidden" name="reserver_phone" value="{{ reserver_phone }}">
+            <input type="hidden" name="reserver_email" value="{{ reserver_email }}">
+            <input type="hidden" name="travelers_json" value="{{ travelers_json }}">
+            <input type="hidden" name="accommodation_id" value="{{ selected_accommodation.id if selected_accommodation else '' }}">
+            <input type="hidden" name="agree_special" value="{{ '1' if agree_special else '0' }}">
+            <input type="hidden" name="agree_privacy" value="{{ '1' if agree_privacy else '0' }}">
+            <input type="hidden" name="agree_sensitive" value="{{ '1' if agree_sensitive else '0' }}">
+            <input type="hidden" name="agree_location" value="{{ '1' if agree_location else '0' }}">
+            <input type="hidden" name="payment_method" value="CARD">
+            <input type="hidden" name="portone_payment_id" id="portonePaymentId" value="">
+            <input type="hidden" name="portone_tx_id" id="portoneTxId" value="">
+            <input type="hidden" name="paid_amount" id="formPaidAmount" value="{{ total_final }}">
+
+            <div class="d-flex flex-column gap-3">
+              <!-- 금액 상세 요약 그리드 -->
+              <div class="row g-3 p-3 bg-light rounded-3 border align-items-center">
+                <div class="col-12 col-sm-6 {% if selected_accommodation %}col-md-3{% else %}col-md-4{% endif %}">
+                  <span class="text-muted small d-block mb-1">여행 상품 금액 ({{ headcount }}명)</span>
+                  <span class="fs-6 fw-bold text-dark">{{ "{:,}".format(tour_original if tour_original else total_original) }}원</span>
+                </div>
+                <div class="col-12 col-sm-6 {% if selected_accommodation %}col-md-3{% else %}col-md-4{% endif %}">
+                  <span class="text-muted small d-block mb-1">
+                    {% if is_member %}
+                      회원 우대 할인 ({{ (product.member_discount_rate * 100)|int }}%)
+                    {% else %}
+                      회원 할인 (비회원 정가)
+                    {% endif %}
+                  </span>
+                  <span class="fs-6 fw-bold text-danger">
+                    {% if is_member %}
+                      - {{ "{:,}".format(total_discount) }}원
+                    {% else %}
+                      0원
+                    {% endif %}
+                  </span>
+                </div>
+                {% if selected_accommodation %}
+                <div class="col-12 col-sm-6 col-md-3">
+                  <span class="text-muted small d-block mb-1">연계 숙박 ({{ selected_accommodation.category }})</span>
+                  <span class="fs-6 fw-bold text-primary">+ {{ "{:,}".format(accommodation_price) }}원</span>
+                </div>
+                {% endif %}
+                <div class="col-12 col-sm-6 {% if selected_accommodation %}col-md-3{% else %}col-md-4{% endif %}">
+                  <span class="text-muted small d-block mb-1">최종 결제 금액</span>
+                  <span class="fs-5 fw-bold text-danger">{{ "{:,}".format(total_final) }}원</span>
+                </div>
+              </div>
+
+              <!-- 신용카드 전자결제 안내 바 -->
+              <div class="p-3 bg-light border rounded-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                    <span>💳 신용카드 간편 결제</span>
+                    <span class="badge bg-primary text-white">PortOne</span>
+                  </div>
+                  <small class="text-muted">신용/체크카드로 전자결제가 안전하게 진행됩니다.</small>
+                </div>
+                <div class="text-end">
+                  <span class="text-muted small d-block">결제 예정액</span>
+                  <strong class="text-danger fs-4">{{ "{:,}".format(total_final) }}원</strong>
+                </div>
+              </div>
+
+              <!-- 결제 진행 버튼 -->
+              <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-5 shadow-sm" id="btnPayMain">
+                {{ "{:,}".format(total_final) }}원 결제하기 (PortOne)
+              </button>
+
+              <div class="text-center mt-2">
+                <a href="{{ url_for('order.reserve', product_id=product.id, headcount=headcount) }}" class="text-decoration-none text-secondary small">
+                  &lt; 예약 정보 수정하기
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
 
     </div>
@@ -192,3 +224,4 @@
 <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
 {% endblock %}
+

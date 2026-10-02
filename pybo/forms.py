@@ -1,7 +1,7 @@
 # pybo/forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField, IntegerField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Regexp, NumberRange
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Regexp, NumberRange, Optional
 from pybo.models import User
 from datetime import datetime, timedelta, date
 import re
@@ -65,6 +65,22 @@ class UserLoginForm(FlaskForm):
     ])
 
 
+class OptionalIntegerField(IntegerField):
+    """빈 문자열이나 공백, 0 등이 입력되어도 오류(Not a valid integer value) 없이 None으로 안전하게 처리하는 IntegerField"""
+    def process_formdata(self, valuelist):
+        if not valuelist:
+            self.data = None
+            return
+        val = str(valuelist[0]).strip()
+        if not val or val in ['0', 'None', 'null', 'undefined']:
+            self.data = None
+            return
+        try:
+            self.data = int(val)
+        except (ValueError, TypeError):
+            self.data = None
+
+
 # =========================================================================
 # 3. 여행 상품 예약 검증 폼 (OrderReserveForm)
 # =========================================================================
@@ -112,8 +128,8 @@ class OrderReserveForm(FlaskForm):
     # 선택 약관 동의 (위치 정보 이용 동의)
     agree_location = BooleanField('위치 정보 이용 동의')
 
-    # 연관 숙박 상품 ID (회원 선택 시 옵션)
-    accommodation_id = IntegerField('연계 숙박 상품 ID')
+    # 연관 숙박 상품 ID (회원 선택 시 옵션, 미선택 시 안전하게 None 처리)
+    accommodation_id = OptionalIntegerField('연계 숙박 상품 ID', validators=[Optional()])
 
     def __init__(self, *args, is_member=False, **kwargs):
         super(OrderReserveForm, self).__init__(*args, **kwargs)

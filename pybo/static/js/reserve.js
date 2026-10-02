@@ -66,16 +66,24 @@ document.addEventListener('DOMContentLoaded', function() {
   // 숙소 카테고리 필터링 (전역 window 바인딩)
   window.filterAcc = function(category, btn) {
     const tabs = document.querySelectorAll('.btn-acc-tab');
-    tabs.forEach(t => t.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+    tabs.forEach(t => {
+      t.classList.remove('active');
+      t.classList.remove('btn-primary');
+      t.classList.add('btn-outline-primary');
+    });
+    if (btn) {
+      btn.classList.add('active');
+      btn.classList.remove('btn-outline-primary');
+      btn.classList.add('btn-primary');
+    }
 
-    const cards = document.querySelectorAll('.acc-card');
-    cards.forEach(card => {
-      const cardCat = card.dataset.category;
+    const cols = document.querySelectorAll('#accListGrid > .col');
+    cols.forEach(col => {
+      const cardCat = col.dataset.category;
       if (category === 'all' || cardCat === category) {
-        card.style.display = 'flex';
+        col.style.display = '';
       } else {
-        card.style.display = 'none';
+        col.style.display = 'none';
       }
     });
   };
@@ -83,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 숙소 선택 변경 핸들러 (전역 window 바인딩)
   window.handleAccSelect = function(radio) {
     const noneCard = document.getElementById('accCard_none');
-    const allCards = document.querySelectorAll('.acc-card');
+    const allCards = document.querySelectorAll('#accListGrid .card');
 
     if (!radio.value) {
       // 숙소 선택 안 함
@@ -96,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // 특정 숙소 선택
       if (noneCard) noneCard.classList.remove('selected');
       allCards.forEach(c => c.classList.remove('selected'));
-      const parentCard = radio.closest('.acc-card');
+      const parentCard = radio.closest('.card');
       if (parentCard) parentCard.classList.add('selected');
 
       selectedAccPrice = parseInt(radio.dataset.price, 10) || 0;
@@ -131,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const accPriceEl = document.getElementById('summaryAccPrice');
     if (accCol && accNameEl && accPriceEl) {
       if (selectedAccPrice > 0) {
-        accCol.style.display = 'flex';
+        accCol.style.display = 'block';
         accNameEl.innerText = `[${selectedAccCategory}] ${selectedAccName}`;
         accPriceEl.innerText = `+ ${selectedAccPrice.toLocaleString()}원`;
       } else {
@@ -176,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (let i = 0; i < count; i++) {
       const card = document.createElement('div');
-      card.className = 'traveler-card';
+      card.className = 'card mb-3 border shadow-sm traveler-card';
 
       const isRep = (i === 0);
       const title = isRep ? '여행객 1 (대표 여행자)' : `여행객 ${i + 1}`;
@@ -188,79 +196,83 @@ document.addEventListener('DOMContentLoaded', function() {
       if (isRep) {
         // 대표 여행객 카드
         card.innerHTML = `
-          <div class="traveler-card-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span>👤 ${title}</span>
-              <span style="font-size:12px; color:var(--primary); font-weight:600;">대표자</span>
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark">👤 ${title}</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">대표자</span>
+              </div>
+              <button type="button" class="btn btn-sm ${isSameAsReserver ? 'btn-primary' : 'btn-outline-primary'} d-inline-flex align-items-center gap-1" onclick="toggleSameAsReserver()">
+                <span>${isSameAsReserver ? '✓' : '＋'}</span> 예약자와 동일
+              </button>
             </div>
-            <button type="button" class="btn-same-as-reserver ${isSameAsReserver ? 'active' : ''}" onclick="toggleSameAsReserver()">
-              <span>${isSameAsReserver ? '✓' : '＋'}</span> 예약자와 동일
-            </button>
-          </div>
-          ${isSameAsReserver ? `
-            <div class="rep-same-notice">
-              <div class="rep-notice-content">
-                <span class="rep-notice-icon">📋</span>
-                <div class="rep-notice-text">
-                  <strong>예약자 정보로 자동 등록됩니다.</strong>
-                  <p>성명: <span id="repNamePreview">${reserver.name}</span> | 연락처: <span id="repPhonePreview">${reserver.phone}</span> (추가 입력 불필요)</p>
+            ${isSameAsReserver ? `
+              <div class="alert alert-primary d-flex align-items-center justify-content-between mb-0 py-2 px-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fs-4">📋</span>
+                  <div class="small">
+                    <strong class="d-block text-primary">예약자 정보로 자동 등록됩니다.</strong>
+                    <span class="text-secondary">성명: <span id="repNamePreview" class="fw-bold text-dark">${reserver.name}</span> | 연락처: <span id="repPhonePreview" class="fw-bold text-dark">${reserver.phone}</span> (추가 입력 불필요)</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary bg-white" onclick="toggleSameAsReserver()">직접 입력</button>
+              </div>
+              <input type="hidden" name="traveler_name[]" id="repHiddenName" value="${reserver.name}">
+              <input type="hidden" name="traveler_gender[]" value="미지정">
+              <input type="hidden" name="traveler_phone[]" id="repHiddenPhone" value="${reserver.phone}">
+              <input type="hidden" name="traveler_birth[]" value="-">
+            ` : `
+              <div class="row g-2">
+                <div class="col-12 col-sm-6 col-md-3">
+                  <label class="form-label small fw-bold mb-1">이름 <span class="text-danger">*</span></label>
+                  <input type="text" name="traveler_name[]" value="${nameVal}" required class="form-control" placeholder="성함">
+                </div>
+                <div class="col-12 col-sm-6 col-md-2">
+                  <label class="form-label small fw-bold mb-1">성별 <span class="text-danger">*</span></label>
+                  <select name="traveler_gender[]" class="form-select">
+                    <option value="남" ${genderVal === '남' ? 'selected' : ''}>남</option>
+                    <option value="여" ${genderVal === '여' ? 'selected' : ''}>여</option>
+                  </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                  <label class="form-label small fw-bold mb-1">전화번호 <span class="text-danger">*</span></label>
+                  <input type="tel" name="traveler_phone[]" value="${phoneVal}" required class="form-control" placeholder="010-0000-0000">
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                  <label class="form-label small fw-bold mb-1">생년월일 <span class="text-danger">*</span></label>
+                  <input type="date" name="traveler_birth[]" value="${birthVal}" required class="form-control">
                 </div>
               </div>
-              <button type="button" class="btn-rep-edit" onclick="toggleSameAsReserver()">직접 입력</button>
-            </div>
-            <input type="hidden" name="traveler_name[]" id="repHiddenName" value="${reserver.name}">
-            <input type="hidden" name="traveler_gender[]" value="미지정">
-            <input type="hidden" name="traveler_phone[]" id="repHiddenPhone" value="${reserver.phone}">
-            <input type="hidden" name="traveler_birth[]" value="-">
-          ` : `
-            <div class="traveler-form-grid">
-              <div class="form-group">
-                <label class="form-label">이름 *</label>
-                <input type="text" name="traveler_name[]" value="${nameVal}" required class="form-control" placeholder="성함">
-              </div>
-              <div class="form-group">
-                <label class="form-label">성별 *</label>
-                <select name="traveler_gender[]" class="form-control">
-                  <option value="남" ${genderVal === '남' ? 'selected' : ''}>남</option>
-                  <option value="여" ${genderVal === '여' ? 'selected' : ''}>여</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">전화번호 *</label>
-                <input type="tel" name="traveler_phone[]" value="${phoneVal}" required class="form-control" placeholder="010-0000-0000">
-              </div>
-              <div class="form-group">
-                <label class="form-label">생년월일 *</label>
-                <input type="date" name="traveler_birth[]" value="${birthVal}" required class="form-control">
-              </div>
-            </div>
-          `}
+            `}
+          </div>
         `;
       } else {
         // 동행 여행객 카드 (2번, 3번 ...)
         card.innerHTML = `
-          <div class="traveler-card-header">
-            <span>👤 ${title}</span>
-          </div>
-          <div class="traveler-form-grid">
-            <div class="form-group">
-              <label class="form-label">이름 *</label>
-              <input type="text" name="traveler_name[]" value="${nameVal}" required class="form-control" placeholder="성함">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+              <span class="fw-bold text-dark">👤 ${title}</span>
             </div>
-            <div class="form-group">
-              <label class="form-label">성별 *</label>
-              <select name="traveler_gender[]" class="form-control">
-                <option value="남" ${genderVal === '남' ? 'selected' : ''}>남</option>
-                <option value="여" ${genderVal === '여' ? 'selected' : ''}>여</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">전화번호 *</label>
-              <input type="tel" name="traveler_phone[]" value="${phoneVal}" required class="form-control" placeholder="010-0000-0000">
-            </div>
-            <div class="form-group">
-              <label class="form-label">생년월일 *</label>
-              <input type="date" name="traveler_birth[]" value="${birthVal}" required class="form-control">
+            <div class="row g-2">
+              <div class="col-12 col-sm-6 col-md-3">
+                <label class="form-label small fw-bold mb-1">이름 <span class="text-danger">*</span></label>
+                <input type="text" name="traveler_name[]" value="${nameVal}" required class="form-control" placeholder="성함">
+              </div>
+              <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small fw-bold mb-1">성별 <span class="text-danger">*</span></label>
+                <select name="traveler_gender[]" class="form-select">
+                  <option value="남" ${genderVal === '남' ? 'selected' : ''}>남</option>
+                  <option value="여" ${genderVal === '여' ? 'selected' : ''}>여</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">전화번호 <span class="text-danger">*</span></label>
+                <input type="tel" name="traveler_phone[]" value="${phoneVal}" required class="form-control" placeholder="010-0000-0000">
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <label class="form-label small fw-bold mb-1">생년월일 <span class="text-danger">*</span></label>
+                <input type="date" name="traveler_birth[]" value="${birthVal}" required class="form-control">
+              </div>
             </div>
           </div>
         `;

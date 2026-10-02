@@ -6,109 +6,127 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/complete.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/nearby_slide.css') }}">
 
-<div class="complete-container">
-  <h1>예약 및 결제가 완료되었습니다!</h1>
-  <p class="sub-msg">예약 확인 안내가 등록하신 연락처/이메일로 발송되었습니다.</p>
+<div class="container-lg py-5 complete-container" id="complete-container">
+  <!-- 상단 완료 축하 헤더 -->
+  <div class="text-center mb-4 pb-2">
+    <div class="display-4 text-success mb-2">♙</div>
+    <h1 class="h3 fw-bold text-dark mb-2">예약 및 결제가 완료되었습니다!</h1>
+    <p class="text-muted small mb-0">예약 확인 안내가 등록하신 연락처/이메일로 발송되었습니다.</p>
+  </div>
 
-  <div class="info-box">
-    <div class="info-row">
-      <span class="info-label">주문 번호</span>
-      <span class="info-val">{{ order.order_no }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">예약 상품</span>
-      <span class="info-val">{{ product.name }}</span>
-    </div>
-    {% if order.travel_date or travel_date %}
-    <div class="info-row">
-      <span class="info-label">여행 날짜</span>
-      <span class="info-val" style="color: var(--primary); font-weight: 700;">📅 {{ order.travel_date or travel_date }}</span>
-    </div>
-    {% endif %}
-    <div class="info-row">
-      <span class="info-label">예약 인원</span>
-      <span class="info-val">{{ headcount }}명</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">결제 수단</span>
-      <span class="info-val">
-        {% if payment_method == 'CARD' %}
-          신용/체크카드
-        {% elif payment_method == 'EASY_PAY' %}
-          간편결제
-        {% else %}
-          실시간 계좌이체
-        {% endif %}
-      </span>
-    </div>
-    {% if portone_payment_id %}
-    <div class="info-row">
-      <span class="info-label">PortOne 결제 식별자</span>
-      <span class="info-val" style="font-family: monospace; font-size: 13px; color: #475569;">{{ portone_payment_id }}</span>
-    </div>
-    {% endif %}
-    <div class="info-row">
-      <span class="info-label">최종 결제 금액</span>
-      <span class="info-val" style="color: var(--primary); font-size: 16px;">{{ "{:,}".format(total_final) }}원</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">약관 동의 내역</span>
-      <span class="info-val" style="font-size: 13px; color: var(--success);">
-        필수 약관(동의 완료){% if order.agree_location %}, 위치정보(동의){% endif %}
-      </span>
-    </div>
+  <!-- 결제 요약 정보 카드 -->
+  <div class="card shadow-sm border mb-4">
+    <div class="card-body p-4">
+      <h3 class="card-title h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center gap-2 text-dark">
+        <span>📄 예약 및 결제 요약</span>
+      </h3>
 
-    {% set acc_booking = order.accommodation_booking %}
-    {% if acc_booking and acc_booking.accommodation %}
-    <div style="margin-top: 14px; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-        <span style="font-size: 13px; font-weight: 700; color: #166534;">🏨 연계 숙박 예약 완료</span>
-        {% if acc_booking.accommodation.category == '호텔' %}
-          <span class="badge-cat-hotel">호텔</span>
-        {% else %}
-          <span class="badge-cat-minbak">민박</span>
-        {% endif %}
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">주문 번호</div>
+        <div class="col-8 col-sm-9 fw-bold font-monospace text-primary">{{ order.order_no }}</div>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <img src="{{ acc_booking.accommodation.image_url }}" alt="{{ acc_booking.accommodation.name }}" style="width: 75px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #bbf7d0;" onerror="this.src='/static/img/default-tour.jpg'">
-        <div style="font-size: 13px;">
-          <div style="font-weight: 700; color: #0f172a;">{{ acc_booking.accommodation.name }}</div>
-          <div style="color: #64748b; font-size: 12px;">📍 {{ acc_booking.accommodation.location }}</div>
-          <div style="color: #15803d; font-size: 12px; margin-top: 2px;">체크인: <strong>{{ acc_booking.check_in_date or order.travel_date or '-' }}</strong> | 1박 요금: <strong>{{ "{:,}".format(acc_booking.price_per_night) }}원</strong></div>
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">예약 상품</div>
+        <div class="col-8 col-sm-9 fw-bold text-dark">{{ product.name }}</div>
+      </div>
+      {% if order.travel_date or travel_date %}
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">여행 날짜</div>
+        <div class="col-8 col-sm-9 fw-bold text-primary">📅 {{ order.travel_date or travel_date }}</div>
+      </div>
+      {% endif %}
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">예약 인원</div>
+        <div class="col-8 col-sm-9 fw-bold text-dark">{{ headcount }}명</div>
+      </div>
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">결제 수단</div>
+        <div class="col-8 col-sm-9 fw-bold text-dark">
+          {% if payment_method == 'CARD' %}
+            신용/체크카드
+          {% elif payment_method == 'EASY_PAY' %}
+            간편결제
+          {% else %}
+            실시간 계좌이체
+          {% endif %}
         </div>
       </div>
-    </div>
-    {% endif %}
+      {% if portone_payment_id %}
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">PortOne 결제 식별자</div>
+        <div class="col-8 col-sm-9 text-secondary font-monospace small text-break">{{ portone_payment_id }}</div>
+      </div>
+      {% endif %}
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">최종 결제 금액</div>
+        <div class="col-8 col-sm-9 fs-5 fw-bold text-danger">{{ "{:,}".format(total_final) }}원</div>
+      </div>
+      <div class="row g-2 py-2 border-bottom align-items-center">
+        <div class="col-4 col-sm-3 text-muted small">약관 동의 내역</div>
+        <div class="col-8 col-sm-9 small text-success fw-semibold">
+          필수 약관(동의 완료){% if order.agree_location %}, 위치정보(동의){% endif %}
+        </div>
+      </div>
 
-    {% if travelers %}
-      <div style="margin-top: 16px;">
-        <span class="info-label" style="font-size: 13px;">동행 여행객 명단:</span>
-        <div class="traveler-chip-list">
+      {% set acc_booking = order.accommodation_booking %}
+      {% if acc_booking and acc_booking.accommodation %}
+      <!-- 연계 숙박 예약 완료 정보 박스 -->
+      <div class="p-3 bg-success-subtle border border-success-subtle rounded-3 mt-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="fw-bold text-success small">🏨 연계 숙박 예약 완료</span>
+          {% if acc_booking.accommodation.category == '호텔' %}
+            <span class="badge bg-primary text-white">호텔</span>
+          {% else %}
+            <span class="badge bg-success text-white">민박</span>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <img src="{{ acc_booking.accommodation.image_url }}" alt="{{ acc_booking.accommodation.name }}" class="rounded-2 border border-success-subtle object-fit-cover flex-shrink-0" style="width: 75px; height: 55px;" onerror="this.src='/static/img/default-tour.jpg'">
+          <div>
+            <div class="fw-bold text-dark">{{ acc_booking.accommodation.name }}</div>
+            <div class="text-secondary small">📍 {{ acc_booking.accommodation.location }}</div>
+            <div class="text-success small mt-1">
+              체크인: <strong>{{ acc_booking.check_in_date or order.travel_date or '-' }}</strong> | 1박 요금: <strong>{{ "{:,}".format(acc_booking.price_per_night) }}원</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if travelers %}
+      <div class="mt-3 pt-3 border-top">
+        <span class="text-muted small d-block mb-2">동행 여행객 명단:</span>
+        <div class="d-flex flex-wrap gap-2">
           {% for t in travelers %}
-            <span class="traveler-chip">{{ t.name }} ({{ t.gender }})</span>
+            <span class="badge bg-secondary-subtle text-secondary border px-3 py-2 fs-6 fw-normal">{{ t.name }} ({{ t.gender }})</span>
           {% endfor %}
         </div>
       </div>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
 
-  <!-- 버튼 그룹: Review 작성 & 상세 내역확인하기 (1줄 배치) -->
-  <div class="complete-actions">
-    <a href="#" class="btn-action btn-review">Review 작성</a>
-    <a href="{{ url_for('order.lookup', order_no=order.order_no) }}" class="btn-action btn-detail">상세 내역확인하기</a>
+  <!-- 액션 버튼 그룹 (Review 작성 & 상세 내역확인) -->
+  <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 my-4">
+    <a href="#" class="btn btn-outline-primary btn-lg px-4 fw-bold">Review 작성</a>
+    <a href="{{ url_for('order.lookup', order_no=order.order_no) }}" class="btn btn-primary btn-lg px-4 fw-bold shadow-sm">상세 내역확인하기</a>
   </div>
 
   <!-- 장소 정보 (Google Maps 400px) -->
-  <div class="place-info-section">
-    <h3 class="place-info-title">📍 장소 정보</h3>
-    <div class="map-wrapper">
-      <iframe
-        style="border:0; width: 100%; height: 400px;"
-        loading="lazy"
-        allowfullscreen
-        referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps?q={{ (product.name if product else '')|urlencode }}&output=embed">
-      </iframe>
+  <div class="card shadow-sm border mb-4">
+    <div class="card-body p-4">
+      <h3 class="card-title h5 fw-bold mb-3 d-flex align-items-center gap-2 text-dark">
+        <span>📍 장소 정보</span>
+      </h3>
+      <div class="rounded-3 overflow-hidden border shadow-sm" style="height: 400px;">
+        <iframe
+          style="border:0; width: 100%; height: 100%;"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q={{ (product.name if product else '')|urlencode }}&output=embed">
+        </iframe>
+      </div>
     </div>
   </div>
 
