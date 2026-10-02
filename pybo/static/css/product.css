@@ -44,40 +44,6 @@
     font-size: 14pt;
 }
 
-/*슬라이드 밑 nav*/
-#underslide > #pills-tab{
-    width: 600px;
-    height: 40px;
-    margin: 0 auto;
-}
-
-#pills-tab > li{
-    height: 40px;
-    width: 80px;
-    color: white;
-    align-items: center;
-}
-
-#pills-tab > li > button{
-    width: 80px;
-    height: 40px;
-    background-color: #FAF8F5;
-    color: #212529;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-#pills-tab > li > button.active {
-    background-color: #1D3557;
-    color: white;
-}
-
-#pills-tab > li > button:not(.active):hover {
-    background-color: #1D3557;
-    color: white;
-}
-
 /* 지도 */
 #map-choice{
     width: 350px;

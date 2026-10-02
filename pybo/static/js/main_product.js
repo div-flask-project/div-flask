@@ -415,3 +415,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialRegion = activeTab ? (activeTab.dataset.region || 'all') : 'all';
     activateRegion(initialRegion);
 });
+
