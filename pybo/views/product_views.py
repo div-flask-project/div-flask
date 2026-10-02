@@ -14,8 +14,49 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 @bp.route('/main_product')
 def main_product():
     products_data = TourProduct.query.all()
+    selected_region = request.args.get('region', 'all').strip().lower()
 
-    return render_template('product/main_product.html', products=products_data)
+    def get_region_key(region_str):
+        if not region_str:
+            return 'other'
+        if any(k in region_str for k in ['서울', '경기', '인천', '수도']):
+            return 'sudo'
+        if '강원' in region_str:
+            return 'gang'
+        if any(k in region_str for k in ['충청', '충북', '충남', '대전', '세종']):
+            return 'chung'
+        if any(k in region_str for k in ['경북', '경남', '경상', '부산', '대구', '울산']):
+            return 'geong'
+        if any(k in region_str for k in ['전라', '전북', '전남', '광주']):
+            return 'jeon'
+        if '제주' in region_str:
+            return 'jeju'
+        return 'other'
+
+    products_by_region = {
+        'all': products_data,
+        'sudo': [],
+        'gang': [],
+        'chung': [],
+        'geong': [],
+        'jeon': [],
+        'jeju': [],
+    }
+
+    for p in products_data:
+        key = get_region_key(p.region)
+        if key in products_by_region:
+            products_by_region[key].append(p)
+
+    if selected_region not in products_by_region:
+        selected_region = 'all'
+
+    return render_template(
+        'product/main_product.html',
+        products=products_data,
+        products_by_region=products_by_region,
+        selected_region=selected_region
+    )
 
 
 @bp.route('/sub_product/<int:product_id>')

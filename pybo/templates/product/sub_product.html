@@ -12,7 +12,7 @@
                         <div class="carousel-inner ">
                             {% for img_url in product.image_urls %}
                             <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <img src="{{ img_url }}" class="d-block w-100" alt="">
+                                <img src="{{ img_url }}" class="d-block w-100" alt="{{ product.name }}" onerror="this.onerror=null; this.src='/static/img/default-tour.jpg';">
                             </div>
                             {% endfor %}
                         </div>
@@ -27,7 +27,7 @@
                     </div>
                     <div id="mini">
                         {% for img_url in product.image_urls %}
-                            <img src="{{ img_url }}" class="d-block w-100" alt="">
+                            <img src="{{ img_url }}" alt="{{ product.name }}" onerror="this.onerror=null; this.src='/static/img/default-tour.jpg';" onclick="bootstrap.Carousel.getOrCreateInstance(document.getElementById('carouselExample')).to({{ loop.index0 }});">
                         {% endfor %}
                     </div>
                 </div>
