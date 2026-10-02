@@ -21,70 +21,156 @@ document.addEventListener('DOMContentLoaded', () => {
         'jeju': 6
     };
 
-    // 권역별 플러드필(Flood Fill) 탐색 시드 좌표 (370 x 539 해상도 기준)
+    // 권역별 플러드필(Flood Fill) 정밀 시드 좌표 (370 x 539 해상도 기준, 타 권역 침범 없는 내륙 검증 좌표)
     const regionSeeds = {
         'sudo': [
-            { x: 105, y: 125 }, // 서울
-            { x: 130, y: 80 },  // 경기북부
-            { x: 125, y: 165 }, // 경기남부
-            { x: 80, y: 135 },  // 인천
-            { x: 65, y: 105 }   // 강화
+            { x: 95, y: 117 },  // 서울
+            { x: 113, y: 121 }, // 경기
+            { x: 71, y: 126 }   // 인천/강화
         ],
         'gang': [
-            { x: 210, y: 80 },  // 춘천/인제
-            { x: 250, y: 120 }, // 강릉
-            { x: 200, y: 140 }, // 원주
-            { x: 300, y: 55 }   // 울릉/독도 원형 인셋
+            { x: 209, y: 98 },  // 강원 본토
+            { x: 301, y: 47 }   // 울릉/독도 원형 인셋
         ],
         'chung': [
-            { x: 100, y: 220 }, // 충남북부
-            { x: 90, y: 250 },  // 충남남부
-            { x: 165, y: 195 }, // 충북북부
-            { x: 185, y: 235 }, // 충북남부
-            { x: 135, y: 260 }, // 대전
-            { x: 125, y: 225 }  // 세종
+            { x: 86, y: 235 },  // 충남
+            { x: 169, y: 209 }, // 충북
+            { x: 114, y: 225 }, // 세종
+            { x: 131, y: 253 }  // 대전
         ],
         'geong': [
-            { x: 230, y: 200 }, // 경북북부
-            { x: 265, y: 220 }, // 울진/영덕
-            { x: 225, y: 265 }, // 구미/김천
-            { x: 265, y: 275 }, // 포항/경주
-            { x: 240, y: 310 }, // 대구
-            { x: 190, y: 340 }, // 진주
-            { x: 230, y: 350 }, // 창원
-            { x: 295, y: 335 }, // 울산
-            { x: 275, y: 375 }  // 부산
+            { x: 251, y: 251 }, // 경북
+            { x: 236, y: 310 }, // 대구
+            { x: 207, y: 359 }, // 경남
+            { x: 298, y: 340 }, // 울산
+            { x: 283, y: 378 }, // 부산
+            { x: 352, y: 261 }  // 울릉도 실도
         ],
         'jeon': [
-            { x: 110, y: 300 }, // 전북북부
-            { x: 140, y: 320 }, // 전북남부
-            { x: 95, y: 360 },  // 전남북부
-            { x: 105, y: 375 }, // 광주
-            { x: 80, y: 410 },  // 목포/해남
-            { x: 125, y: 410 }  // 순천/여수
+            { x: 109, y: 323 }, // 전북
+            { x: 90, y: 406 },  // 전남
+            { x: 79, y: 385 },  // 광주
+            { x: 36, y: 472 }   // 진도/도서
         ],
         'jeju': [
-            { x: 85, y: 515 },
-            { x: 75, y: 515 },
-            { x: 95, y: 515 }
+            { x: 84, y: 518 }   // 제주 본섬
         ]
     };
 
-    // 지도 상단에 표시할 권역별 라벨 배지 좌표
+    const regionCodes = {
+        'sudo': 1,
+        'gang': 2,
+        'chung': 3,
+        'geong': 4,
+        'jeon': 5,
+        'jeju': 6
+    };
+
+    const codeToRegion = {
+        1: 'sudo',
+        2: 'gang',
+        3: 'chung',
+        4: 'geong',
+        5: 'jeon',
+        6: 'jeju'
+    };
+
+    // 지도 상단에 표시할 권역별 라벨 배지 좌표 (각 권역 중앙 앵커)
     const regionBadges = {
-        'sudo': { text: '📍 수도권', x: 115, y: 135 },
-        'gang': { text: '📍 강원권', x: 225, y: 105 },
-        'chung': { text: '📍 충청권', x: 130, y: 235 },
-        'geong': { text: '📍 경상권', x: 245, y: 295 },
-        'jeon': { text: '📍 전라권', x: 110, y: 370 },
-        'jeju': { text: '📍 제주권', x: 85, y: 485 }
+        'sudo': { text: '📍 수도권', x: 111, y: 121 },
+        'gang': { text: '📍 강원권', x: 209, y: 98 },
+        'chung': { text: '📍 충청권', x: 128, y: 223 },
+        'geong': { text: '📍 경상권', x: 239, y: 292 },
+        'jeon': { text: '📍 전라권', x: 97, y: 369 },
+        'jeju': { text: '📍 제주권', x: 84, y: 490 }
     };
 
     let baseImageData = null;
+    let regionGrid = null; // Uint8Array(370 * 539) 픽셀별 권역 코드 매핑 (1~6)
     let currentActiveRegion = 'all';
 
     /**
-     * 지도 원본 이미지(map_basic.png) 로드 및 원본 픽셀 데이터 캐싱
+     * 흰색 내륙 픽셀 여부 판별 (배경 투명 및 경계선 제외)
+     */
+    function isFillableWhite(data, x, y, width, height) {
+        if (x < 0 || x >= width || y < 0 || y >= height) return false;
+        const idx = (y * width + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const a = data[idx + 3];
+        return a > 150 && r > 220 && g > 220 && b > 220;
+    }
+
+    /**
+     * 지도 원본 이미지(map_basic.png) 로드 및 권역별 픽셀 그리드(regionGrid) 사전 계산
+     */
+    function buildRegionGrid(data, width, height) {
+        const grid = new Uint8Array(width * height);
+
+        for (const [region, seeds] of Object.entries(regionSeeds)) {
+            const code = regionCodes[region];
+            if (!code) continue;
+
+            for (const pt of seeds) {
+                let sx = pt.x;
+                let sy = pt.y;
+                if (!isFillableWhite(data, sx, sy, width, height)) {
+                    // 미세 오차 대비 최대 2px 내에서만 흰색 픽셀 탐색 (경계선 침범 방지)
+                    let found = false;
+                    for (let r = 1; r <= 2; r++) {
+                        for (let dx = -r; dx <= r; dx++) {
+                            for (let dy = -r; dy <= r; dy++) {
+                                if (isFillableWhite(data, sx + dx, sy + dy, width, height)) {
+                                    sx = sx + dx;
+                                    sy = sy + dy;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (found) break;
+                        }
+                        if (found) break;
+                    }
+                    if (!found) continue;
+                }
+
+                const seedPos = sy * width + sx;
+                if (grid[seedPos] !== 0) continue;
+
+                const queue = [sx, sy];
+                grid[seedPos] = code;
+
+                while (queue.length > 0) {
+                    const cy = queue.pop();
+                    const cx = queue.pop();
+
+                    const neighbors = [
+                        cx + 1, cy,
+                        cx - 1, cy,
+                        cx, cy + 1,
+                        cx, cy - 1
+                    ];
+
+                    for (let i = 0; i < neighbors.length; i += 2) {
+                        const nx = neighbors[i];
+                        const ny = neighbors[i + 1];
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                            const pos = ny * width + nx;
+                            if (grid[pos] === 0 && isFillableWhite(data, nx, ny, width, height)) {
+                                grid[pos] = code;
+                                queue.push(nx, ny);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return grid;
+    }
+
+    /**
+     * 지도 원본 이미지(map_basic.png) 로드 및 원본 픽셀 데이터, 권역 그리드 캐싱
      */
     function initMapCanvas() {
         if (!mapCanvas || !sourceImg) return;
@@ -97,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.clearRect(0, 0, 370, 539);
             ctx.drawImage(sourceImg, 0, 0, 370, 539);
             baseImageData = ctx.getImageData(0, 0, 370, 539);
+            regionGrid = buildRegionGrid(baseImageData.data, 370, 539);
             renderMapHighlight(currentActiveRegion);
         }
 
@@ -104,85 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loadBaseImage();
         } else {
             sourceImg.onload = loadBaseImage;
-        }
-    }
-
-    /**
-     * 주어진 시드 좌표로부터 연결된 흰색 육지 영역을 지정 색상으로 플러드필 채우기
-     */
-    function floodFillRegion(data, width, height, startX, startY, fillR, fillG, fillB, fillA) {
-        function getIdx(x, y) {
-            return (y * width + x) * 4;
-        }
-
-        function isFillableWhite(x, y) {
-            if (x < 0 || x >= width || y < 0 || y >= height) return false;
-            const idx = getIdx(x, y);
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
-            const a = data[idx + 3];
-            // 투명 배경이나 회색 경계선이 아닌 순백색 내륙만 채움
-            return a > 150 && r > 220 && g > 220 && b > 220;
-        }
-
-        // 반경 25px 내의 가장 가까운 흰색 픽셀 탐색
-        let seedX = -1, seedY = -1;
-        if (isFillableWhite(startX, startY)) {
-            seedX = startX;
-            seedY = startY;
-        } else {
-            outer: for (let r = 1; r <= 25; r++) {
-                for (let dx = -r; dx <= r; dx++) {
-                    for (let dy = -r; dy <= r; dy++) {
-                        if (Math.abs(dx) === r || Math.abs(dy) === r) {
-                            const nx = startX + dx;
-                            const ny = startY + dy;
-                            if (isFillableWhite(nx, ny)) {
-                                seedX = nx;
-                                seedY = ny;
-                                break outer;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (seedX === -1) return;
-
-        const queue = [seedX, seedY];
-        const visited = new Uint8Array(width * height);
-        visited[seedY * width + seedX] = 1;
-
-        while (queue.length > 0) {
-            const cy = queue.pop();
-            const cx = queue.pop();
-            const idx = getIdx(cx, cy);
-
-            data[idx] = fillR;
-            data[idx + 1] = fillG;
-            data[idx + 2] = fillB;
-            data[idx + 3] = fillA;
-
-            const neighbors = [
-                cx + 1, cy,
-                cx - 1, cy,
-                cx, cy + 1,
-                cx, cy - 1
-            ];
-
-            for (let i = 0; i < neighbors.length; i += 2) {
-                const nx = neighbors[i];
-                const ny = neighbors[i + 1];
-                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                    const pos = ny * width + nx;
-                    if (!visited[pos] && isFillableWhite(nx, ny)) {
-                        visited[pos] = 1;
-                        queue.push(nx, ny);
-                    }
-                }
-            }
         }
     }
 
@@ -233,17 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ctx) return;
 
         // 전체 또는 미선택 시 기본 지도 원본 출력
-        if (!activeRegion || activeRegion === 'all' || !regionSeeds[activeRegion]) {
+        if (!activeRegion || activeRegion === 'all' || !regionCodes[activeRegion] || !regionGrid) {
             ctx.putImageData(baseImageData, 0, 0);
             return;
         }
 
-        // 원본 복사본 생성 후 해당 권역 시드들에 대해 색 채우기 (#1D3557 네이비 색상)
+        const targetCode = regionCodes[activeRegion];
         const currentData = new ImageData(new Uint8ClampedArray(baseImageData.data), 370, 539);
-        const seeds = regionSeeds[activeRegion] || [];
-        seeds.forEach(pt => {
-            floodFillRegion(currentData.data, 370, 539, pt.x, pt.y, 29, 53, 87, 240);
-        });
+        const d = currentData.data;
+        const totalPixels = 370 * 539;
+
+        // 해당 권역으로 확정된 픽셀만 하이라이트 색상(#1D3557 네이비) 적용
+        for (let i = 0; i < totalPixels; i++) {
+            if (regionGrid[i] === targetCode) {
+                const idx = i * 4;
+                d[idx] = 29;     // R
+                d[idx + 1] = 53; // G
+                d[idx + 2] = 87; // B
+                d[idx + 3] = 240;// A
+            }
+        }
 
         // 캔버스에 색 채워진 지도 반영
         ctx.putImageData(currentData, 0, 0);
@@ -255,41 +272,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * 클릭 좌표로부터 해당하는 권역 키 식별
+     * 클릭/호버 좌표로부터 해당하는 권역 키 식별 (정밀 픽셀 및 반경 3px 근접 스냅)
      */
     function getRegionFromCoord(x, y) {
         if (x < 0 || x >= 370 || y < 0 || y >= 539) return null;
-        if (!baseImageData) return null;
+        if (!regionGrid) return null;
 
-        // 클릭 지점 근처에 육지가 존재하는지 확인
-        const idx = (y * 370 + x) * 4;
-        if (baseImageData.data[idx + 3] < 30) {
-            let hasLand = false;
-            for (let r = 1; r <= 8; r += 2) {
-                for (let dx = -r; dx <= r; dx += 2) {
-                    for (let dy = -r; dy <= r; dy += 2) {
-                        const nx = x + dx, ny = y + dy;
-                        if (nx >= 0 && nx < 370 && ny >= 0 && ny < 539) {
-                            if (baseImageData.data[(ny * 370 + nx) * 4 + 3] > 100) {
-                                hasLand = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (hasLand) break;
-                }
-                if (hasLand) break;
-            }
-            if (!hasLand) return null;
+        const pos = y * 370 + x;
+        const code = regionGrid[pos];
+        if (code > 0 && codeToRegion[code]) {
+            return codeToRegion[code];
         }
 
-        // 권역별 지리적 경계 판별
-        if (y >= 475) return 'jeju';
-        if (y < 170 && x >= 165) return 'gang';
-        if (y < 185 && x < 165) return 'sudo';
-        if (y >= 185 && y < 285 && x < 165) return 'chung';
-        if (y >= 170 && x >= 165) return 'geong';
-        if (y >= 285 && x < 180) return 'jeon';
+        // 경계선(1~2px 회색선)이나 해안가 클릭 시 반경 3px 내 인접 권역 탐색
+        for (let r = 1; r <= 3; r++) {
+            for (let dx = -r; dx <= r; dx++) {
+                for (let dy = -r; dy <= r; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < 370 && ny >= 0 && ny < 539) {
+                        const nearCode = regionGrid[ny * 370 + nx];
+                        if (nearCode > 0 && codeToRegion[nearCode]) {
+                            return codeToRegion[nearCode];
+                        }
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
