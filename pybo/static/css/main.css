@@ -216,7 +216,7 @@ button,input {
 .more-btn-wrap {
     display: flex;
     justify-content: center;
-    margin: 25px 0 10px;
+    margin: -10px 0 5px;
     width: 100%;
 }
 
@@ -280,7 +280,7 @@ button,input {
     border: 1px solid #FAF8F5;
     border-radius: 12px;
     overflow: hidden;
-    height: 520px;
+    height: 540px;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -409,7 +409,7 @@ button,input {
 
 .sub-card-text {
     width: 62%;
-    padding: 22px;
+    padding: 22px 22px 10px 22px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -432,7 +432,7 @@ button,input {
 .sub-price-line {
     text-align: right;
     font-size: 0.85rem;
-    color: #999;
+       color: #999;
 }
 
 .sub-price-line .price strong{

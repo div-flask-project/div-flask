@@ -105,21 +105,11 @@ def toggle_product_like():
 
     create_table_query = """
                          CREATE TABLE IF NOT EXISTS direct_product_like
-                         ( \
-                             user_id \
-                             INTEGER \
-                             NOT \
-                             NULL, \
-                             product_id \
-                             INTEGER \
-                             NOT \
-                             NULL, \
-                             PRIMARY \
-                             KEY \
-                         ( \
-                             user_id, \
-                             product_id \
-                         )); \
+                         (
+                             user_id INTEGER NOTNULL,
+                             product_id INTEGER NOT NULL,
+                             PRIMARY KEY (user_id,product_id)
+                         );
                          """
     try:
         db.session.execute(text(create_table_query))
