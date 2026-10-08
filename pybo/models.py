@@ -320,7 +320,7 @@ class TourProduct(db.Model):
         return f"<TourProduct {self.name} ({self.region})>"
     
 class ProductLike(db.Model):
-    __tablename__ = 'product_likes'
+    __tablename__ = 'direct_product_like'
     __table_args__ = (
         db.UniqueConstraint('user_id', 'product_id', name='uix_user_product_like'),
     )
