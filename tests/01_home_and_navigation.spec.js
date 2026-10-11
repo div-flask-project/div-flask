@@ -53,19 +53,35 @@ test.describe('메인 홈 및 헤더 네비게이션 테스트', () => {
     await expect(langMenu.locator('a:has-text("简体中文")')).toBeVisible();
   });
 
-  test('메인 홈 6대 권역 퀵 버튼 클릭 시 해당 권역으로 이동', async ({ page }) => {
-    await page.goto('/');
+  // 6대 권역 (수도권, 강원권, 충청권, 경상권, 전라권, 제주권) 퀵 버튼 이동 테스트
+  const regions = [
+    { name: '수도권', urlPattern: /region=sudo/, tabId: '#pills-sudo-tab', paneId: '#pills-sudo' },
+    { name: '강원권', urlPattern: /region=gang/, tabId: '#pills-gang-tab', paneId: '#pills-gang' },
+    { name: '충청권', urlPattern: /region=chung/, tabId: '#pills-chung-tab', paneId: '#pills-chung' },
+    { name: '경상권', urlPattern: /region=geong|region=gyeong/, tabId: '#pills-gyeong-tab', paneId: '#pills-gyeong' },
+    { name: '전라권', urlPattern: /region=jeon/, tabId: '#pills-jeon-tab', paneId: '#pills-jeon' },
+    { name: '제주권', urlPattern: /region=jeju/, tabId: '#pills-jeju-tab', paneId: '#pills-jeju' },
+  ];
 
-    // 제주권 클릭
-    const jejuBtn = page.locator('.icon-item:has-text("제주권")');
-    await expect(jejuBtn).toBeVisible();
-    await jejuBtn.click();
+  for (const reg of regions) {
+    test(`메인 홈 6대 권역 퀵 버튼 클릭 시 해당 권역으로 이동 (${reg.name})`, async ({ page }) => {
+      await page.goto('/');
 
-    // 제주권 상품 목록 페이지로 이동 및 탭 활성화 확인
-    await expect(page).toHaveURL(/region=jeju/);
-    const activeTab = page.locator('#pills-jeju-tab');
-    await expect(activeTab).toHaveClass(/active/);
-    await expect(page.locator('#pills-jeju .product-grid')).toBeVisible();
-  });
+      // 6대 권역 퀵 버튼 영역에서 해당 권역 클릭
+      const regBtn = page.locator(`.icon-item:has-text("${reg.name}")`);
+      await expect(regBtn).toBeVisible();
+      await regBtn.click();
+
+      // 해당 권역 파라미터가 포함된 상품 목록 페이지로 이동 확인
+      await expect(page).toHaveURL(reg.urlPattern);
+
+      // 해당 권역 탭 버튼 활성화(active) 확인
+      const activeTab = page.locator(reg.tabId);
+      await expect(activeTab).toHaveClass(/active/);
+
+      // 해당 권역 상품 그리드 노출 확인
+      const activeGrid = page.locator(`${reg.paneId} .product-grid`);
+      await expect(activeGrid).toBeVisible();
+    });
+  }
 });
-
