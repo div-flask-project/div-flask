@@ -1,5 +1,5 @@
-# 베이스 이미지 선택
-FROM python:3.13-slim
+
+FROM python:3.12-slim
 
 # [수정] 시간대 설정 (KST)
 # tzdata를 설치하고 환경 변수를 설정합니다.

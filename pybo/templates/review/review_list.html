@@ -22,7 +22,7 @@
         {% for product, review_count in popular_products[:3] %}
         {% set top_review = product.reviews.first() if product.reviews else None %}
         <div class="col">
-            <a href="{{ url_for('review.detail', product_id=product.id, review_id=top_review.id if top_review else None) if product else '#' }}" class="text-decoration-none text-dark d-block h-100">
+            <a href="{% if product and top_review %}{{ url_for('review.detail', product_id=product.id, review_id=top_review.id) }}{% else %}#{% endif %}" class="text-decoration-none text-dark d-block h-100">
                 <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden" style="background: #ffffff; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
                     <div style="height: 200px; overflow: hidden; position: relative;">
                         <img src="{{ product.image_url or '/static/img/default-tour.jpg' if product else '/static/img/default-tour.jpg' }}" class="w-100 h-100" alt="여행 상품" style="object-fit: cover;">

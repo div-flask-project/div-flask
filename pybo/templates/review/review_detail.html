@@ -45,10 +45,10 @@
                 <div class="mt-3 text-end d-flex justify-content-end gap-2 flex-wrap align-items-center">
                     {% if g.user %}
                         {% if user_review %}
-                        <a href="{{ url_for('review.modify', review_id=my_review.id) }}" class="btn btn-outline-primary btn-sm px-3 fw-bold shadow-sm">
+                        <a href="{{ url_for('review.modify', review_id=user_review.id) }}" class="btn btn-outline-primary btn-sm px-3 fw-bold shadow-sm">
                             ✏️ Review 수정
                         </a>
-                        <a href="{{ url_for('review.delete', review_id=my_review.id, next=url_for('review.detail', product_id=product.id)) }}" class="btn btn-danger btn-sm px-3 fw-bold shadow-sm" onclick="return confirm('작성하신 리뷰를 정말 삭제하시겠습니까?');">
+                        <a href="{{ url_for('review.delete', review_id=user_review.id, next=url_for('review.detail', product_id=product.id)) }}" class="btn btn-danger btn-sm px-3 fw-bold shadow-sm" onclick="return confirm('작성하신 리뷰를 정말 삭제하시겠습니까?');">
                             🗑️ Review 삭제
                         </a>
                         {% elif can_review %}
