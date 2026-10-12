@@ -77,7 +77,7 @@ def seed_time_deals():
         })
 
         db.session.commit()
-        print(f"🎉 [성공] 진짜 상품 데이터베이스와 타임딜(ID: {main_deal_id}, {sub1_id}, {sub2_id}) 자동 동기화 시딩 완료!")
+        print(f"[성공] 진짜 상품 데이터베이스와 타임딜(ID: {main_deal_id}, {sub1_id}, {sub2_id}) 자동 동기화 시딩 완료!")
     except Exception as e:
         db.session.rollback()
-        print(f"❌ 자동화 시딩 실패 오류 내용: {e}")
+        print(f"[오류] 자동화 시딩 실패 오류 내용: {e}")

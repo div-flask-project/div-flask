@@ -168,10 +168,14 @@ flowchart TD
 ![04_상품목록_수도권_Canvas지도및상품그리드](screen/04_상품목록_수도권_Canvas지도및상품그리드.png)
 - **캡처 파일**: `screen/04_상품목록_수도권_Canvas지도및상품그리드.png`
 - **스크립트**: [`pybo/static/js/main_product.js`](file:///d:/hongdonjoo/flask/project1/div-flask/pybo/static/js/main_product.js)
-- **주요 기능 및 특징**:
-  - **HTML5 Canvas 플러드필(Flood Fill)**: 대한민국 지도 그래픽에서 경계선 내부 픽셀을 분석하여 사용자가 클릭한 수도권 영역을 정확하게 판별합니다.
-  - **실시간 호버 하이라이트**: 마우스를 올린 권역의 색상이 실시간으로 강조됩니다.
-  - **Sticky 고정 스크롤**: 스크롤을 내려도 좌측 Canvas 지도와 탭 메뉴가 상단에 고정(`sticky`)되어 언제든 다른 권역으로 전환할 수 있습니다.
+- **주요 기능 및 세부 알고리즘**:
+  - **HTML5 Canvas 픽셀 플러드필(Flood Fill)**:
+    - `initMapCanvas()`가 로드 시 `buildRegionGrid()`를 1회 호출하여 `regionSeeds`로부터 4방향 큐 탐색으로 370×539 크기의 룩업 바이트 배열(`regionGrid`)을 사전 빌드.
+    - 사용자가 지도 클릭 시 `getRegionFromCoord(clickX, clickY)`가 `regionGrid`를 O(1)로 조회하여 수도권 영역을 즉각 판별하고 `activateRegion('sudo')`를 호출.
+  - **실시간 마우스 호버(Hover) 하이라이트**:
+    - `mousemove` 이벤트 발생 시 `getRegionFromCoord(moveX, moveY)`로 마우스 아래 권역을 판별하고 커서를 `pointer`로 변경.
+    - `renderMap(currentActiveRegion, hoveredRegion)`이 원본 픽셀 복사본에서 해당 권역 픽셀을 산뜻한 에메랄드 그린(`rgba(66, 186, 130, 0.76)`)으로 고속 교체하고 `drawRegionBadge()`로 권역 중심에 둥근 알약형 뱃지('📍 수도권') 렌더링.
+  - **Sticky 고정 스크롤**: 스크롤을 내려도 좌측 Canvas 지도와 탭 메뉴가 상단에 고정(`position: sticky`)되어 언제든 다른 권역으로 전환 가능.
   - **우측 2열 반응형 그리드**: 가평 아침고요수목원 등 수도권 16개 테마 상품이 평점, 추천수, 가격과 함께 정렬됩니다.
 
 ---

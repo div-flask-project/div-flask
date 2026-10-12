@@ -1,0 +1,29 @@
+{
+  "name": "div-flask",
+  "version": "1.0.0",
+  "description": "> **대한민국 구석구석을 잇는 올인원 국내 여행 패키지 예약 & 후기 플랫폼**  \r > 6대 권역별 테마 여행 상품 탐색부터 맞춤형 연계 숙박 선택, 간편 전자결제 및 실제 여행객 중심의 리뷰 라이프사이클(작성·수정·삭제) 관리까지 원스톱으로 지원합니다.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:headed": "playwright test --headed --project=chromium",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hongdonjoo70/div-flask.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hongdonjoo70/div-flask/issues"
+  },
+  "homepage": "https://github.com/hongdonjoo70/div-flask#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.4"
+  }
+}

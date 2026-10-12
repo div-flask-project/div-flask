@@ -15,7 +15,8 @@ REGION_ALIAS = {
     'chung': 'chung',
     'chungcheong': 'chung',
     'gyeong': 'gyeong',
-    'gyeongsang': 'geong',
+    'geong': 'gyeong',
+    'gyeongsang': 'gyeong',
     'jeon': 'jeon',
     'jeolla': 'jeon',
     'jeju': 'jeju'

@@ -13,7 +13,11 @@
 5. [프로젝트 구조](#-프로젝트-구조)
 6. [데이터베이스 E-R 다이어그램 (ERD)](#-데이터베이스-e-r-다이어그램-erd)
 7. [실행 방법 (DB 초기화 및 Seed 포함)](#-실행-방법-db-초기화-및-seed-포함)
-8. [기능 검증 및 시험 완료 항목](#-기능-검증-및-시험-완료-항목)
+8. [테스트 및 기능 검증 완료 항목 (Playwright E2E 포함)](#-테스트-및-기능-검증-완료-항목-playwright-e2e-포함)
+   - [8.1 Playwright E2E 자동화 테스트 환경 구축 및 실행 가이드](#81-playwright-e2e-자동화-테스트-환경-구축-및-실행-가이드)
+   - [8.2 시나리오별 6대 E2E 자동화 테스트 스위트 명세](#82-시나리오별-6대-e2e-자동화-테스트-스위트-명세)
+   - [8.3 CI/CD GitHub Actions 자동화 연동](#83-cicd-github-actions-자동화-연동)
+   - [8.4 화면별 수동 기능 검증 완료 체크리스트](#84-화면별-수동-기능-검증-완료-체크리스트)
 9. [주의 사항](#-주의-사항)
 10. [향후 추가 및 업데이트 가능한 기능](#-향후-추가-및-업데이트-가능한-기능)
 
@@ -187,17 +191,113 @@
 ---
 
 ### 3. 지역별/권역별 Canvas 지도 선택 및 반응형 인터랙션 (`main_product.js`)
-기존의 단순 버튼 나열 방식을 탈피하여, 지도 그래픽과 Canvas 기술을 접목한 인터랙티브 권역 탐색 시스템을 제공합니다.
+기존의 단순 텍스트 버튼 나열 방식을 탈피하여, 대한민국 지도 비트맵 그래픽과 HTML5 Canvas 기술을 접목한 인터랙티브 권역 탐색 시스템을 제공합니다.
 
-- **대한민국 6대 권역 시각화**: 수도권, 강원, 충청, 경상, 전라, 제주 권역을 지도상에 직관적으로 표현
-- **HTML5 Canvas 픽셀 플러드필(Flood Fill) 알고리즘**:
-  - 지도 이미지의 픽셀 색상 및 경계선 구분을 분석하여 사용자가 클릭한 지점의 권역을 정확하게 판별
-- **실시간 마우스 호버(Hover) 하이라이트**:
-  - 마우스 커서가 올라간 권역을 실시간으로 감지하여 하이라이트 색상으로 동적 렌더링
-- **실시간 권역 탭 및 상품 목록 동기화**:
-  - 지도 클릭 시 해당 권역 탭이 활성화되며, 우측의 여행 상품 카드 목록이 해당 권역 상품으로 즉각 필터링
+#### ① HTML5 Canvas 픽셀 플러드필(Flood Fill) 알고리즘
+- **알고리즘 개요**:
+  - 대한민국 지도 원본 비트맵 이미지(`map_basic.png`, 370 × 539 해상도)의 행정 구역 경계선(어두운 선)을 경계벽으로 삼고, 권역별 내륙 정밀 시드 좌표(`regionSeeds`)로부터 4방향 큐(Queue) 기반 플러드필 탐색을 실행합니다.
+  - 이를 통해 370 × 539 크기의 1차원 바이트 배열 `Uint8Array`인 `regionGrid`에 권역 코드(1: 수도권, 2: 강원, 3: 충청, 4: 경상, 5: 전라, 6: 제주)를 1회 사전 색인(O(1) 룩업 테이블)하여 마우스 좌표 판별 성능을 극대화합니다.
+
+- **핵심 함수별 기능 명세**:
+  | 함수명 | 입출력 (매개변수 ➔ 반환) | 핵심 기능 및 역할 |
+  | :--- | :--- | :--- |
+  | `initMapCanvas()` | `void ➔ void` | 캔버스 크기(370×539) 설정, 원본 이미지 렌더링, `getImageData()`로 픽셀 버퍼(`baseImageData`) 추출 및 `buildRegionGrid()`를 호출하여 권역 그리드 캐싱 |
+  | `isFillableWhite(data, x, y, width, height)` | `(data, x, y, w, h) ➔ boolean` | 지정 좌표가 채색 가능한 내륙 흰색 픽셀인지 판별 (`alpha > 150 && R > 220 && G > 220 && B > 220`). 경계선 및 바다 배경 영역 침범 차단 |
+  | `buildRegionGrid(data, width, height)` | `(data, w, h) ➔ Uint8Array` | 각 권역별 시드 좌표(`regionSeeds`)에서 시작하여 4방향 큐 탐색으로 흰색 픽셀 영역을 채워 권역 코드(1~6)를 기록한 룩업 배열 생성 |
+  | `getRegionFromCoord(x, y)` | `(x, y) ➔ string \| null` | 캔버스 클릭/마우스 좌표를 1차원 인덱스(`y * 370 + x`)로 변환하여 `regionGrid`에서 권역 키를 O(1)로 조회. 경계선 클릭 대비 반경 3px 근접 스냅 탐색 지원 |
+  | `activateRegion(region)` | `(region) ➔ void` | 선택된 권역의 상품 목록 탭 활성화, 탭/지도 버튼 active 클래스 동기화, `renderMap()` 호출 및 브라우저 URL 파라미터(`?region=...`) 갱신 |
+
+- **플러드필 및 권역 선택 호출 Flow**:
+  ```mermaid
+  sequenceDiagram
+      autonumber
+      actor User as 사용자
+      participant Canvas as mapCanvas (#map-canvas)
+      participant Init as initMapCanvas()
+      participant Build as buildRegionGrid()
+      participant Fill as isFillableWhite()
+      participant Coord as getRegionFromCoord()
+      participant Act as activateRegion()
+      participant Render as renderMap()
+
+      Note over Init, Build: [초기화 단계] 지도 로딩 시 1회 사전 인덱싱 (O(1) 캐싱)
+      Init->>Init: ctx.drawImage(sourceImg) & getImageData()
+      Init->>Build: buildRegionGrid(baseImageData.data, 370, 539)
+      loop 6대 권역별 시드 좌표 (regionSeeds)
+          Build->>Fill: isFillableWhite(x, y) 검사
+          Build->>Build: 4방향 큐(Queue) 플러드필 수행 및 regionGrid에 코드(1~6) 기록
+      end
+      Build-->>Init: regionGrid (Uint8Array 룩업 테이블) 반환 및 캐싱
+      Init->>Render: renderMap('all', null) 초기 렌더링
+
+      Note over User, Render: [사용자 권역 선택 클릭 단계]
+      User->>Canvas: 지도 특정 권역 클릭 (click 이벤트)
+      Canvas->>Canvas: 뷰포트 대비 Canvas 내부 상대 좌표 (clickX, clickY) 산출
+      Canvas->>Coord: getRegionFromCoord(clickX, clickY)
+      Coord->>Coord: regionGrid[y * 370 + x] 인덱스 조회 (반경 3px 스냅)
+      Coord-->>Canvas: 권역 코드 반환 (예: 'sudo')
+      Canvas->>Act: activateRegion('sudo')
+      Act->>Act: 우측 상품 패널 활성화 (#pills-sudo) & 탭/버튼 active 동기화
+      Act->>Render: renderMap('sudo', null) 지도 하이라이트 갱신
+      Act->>Act: window.history.replaceState (URL 파라미터 갱신)
+  ```
+
+---
+
+#### ② 실시간 마우스 호버(Hover) 하이라이트 알고리즘
+- **알고리즘 개요**:
+  - 사용자가 지도 캔버스 위에서 마우스를 이동하거나 좌측 권역 버튼에 마우스를 올릴 때, `mousemove` 및 `mouseenter` 이벤트를 실시간 감지합니다.
+  - 마우스 커서 아래에 위치한 권역 코드를 즉시 판별하여, 해당 권역 전체 픽셀을 산뜻한 에메랄드 그린(`rgba(66, 186, 130, 0.76)`)으로 고속 채색하고 커서를 `pointer`로 전환하며, 권역 중심에 그림자 효과가 적용된 둥근 알약형 뱃지(`drawRegionBadge`)를 동적으로 렌더링합니다.
+
+- **핵심 함수별 기능 명세**:
+  | 함수명 | 입출력 (매개변수 ➔ 반환) | 핵심 기능 및 역할 |
+  | :--- | :--- | :--- |
+  | `mapCanvas.onmousemove` | `MouseEvent ➔ void` | 마우스 좌표를 캔버스 스케일에 맞추어 변환 후 `getRegionFromCoord()`로 호버 권역 식별. 커서 변경 및 변경 시에만 `renderMap()` 호출 |
+  | `mapCanvas.onmouseleave` | `MouseEvent ➔ void` | 마우스가 캔버스를 벗어났을 때 `currentHoveredRegion = null`, 커서 `default`, `renderMap(currentActiveRegion, null)`로 원복 |
+  | `renderMap(active, hover)` | `(active, hover) ➔ void` | 원본 픽셀 복사본에 `activeCode`(초록 `#15803D`)와 `hoverCode`(에메랄드 `#42BA82`), 동시 겹침(`#106930`)을 픽셀 단위로 적용 후 `putImageData()`로 고속 일괄 렌더링 |
+  | `drawRegionBadge(ctx, badge, isHover)` | `(ctx, badge, isHover) ➔ void` | 권역 중심 앵커 좌표(`regionBadges`)에 둥근 모서리 박스(`roundRect`), 입체적 드롭 섀도우, 텍스트(예: `📍 수도권`)를 캔버스 상단에 오버레이 |
+  | 탭/버튼 `mouseenter/mouseleave` | `Event ➔ void` | 좌측 탭 버튼 및 지도 선택 버튼에 마우스를 올렸을 때도 동일하게 캔버스 지도 해당 권역을 연동 하이라이트 |
+
+- **실시간 마우스 호버(Hover) 호출 Flow**:
+  ```mermaid
+  sequenceDiagram
+      autonumber
+      actor User as 사용자
+      participant Canvas as mapCanvas (#map-canvas)
+      participant Move as mousemove 이벤트
+      participant Coord as getRegionFromCoord()
+      participant Render as renderMap()
+      participant Badge as drawRegionBadge()
+
+      User->>Canvas: 마우스 커서 이동
+      Canvas->>Move: mousemove 이벤트 수신
+      Move->>Move: Canvas 스케일 보정 좌표 (moveX, moveY) 계산
+      Move->>Coord: getRegionFromCoord(moveX, moveY)
+      Coord-->>Move: 마우스 위치 권역 반환 (예: 'gang')
+
+      alt 호버 권역이 변경된 경우 (hoveredRegion !== currentHoveredRegion)
+          Move->>Move: currentHoveredRegion = 'gang' 갱신
+          Move->>Canvas: mapCanvas.style.cursor = 'pointer'
+          Move->>Render: renderMap(currentActiveRegion, 'gang')
+          Render->>Render: 원본 픽셀 복사본(currentData) 생성
+          Render->>Render: regionGrid 순회: 'gang' 픽셀을 에메랄드 그린(#42BA82)으로 치환
+          Render->>Canvas: ctx.putImageData(currentData, 0, 0) 버퍼 일괄 반영
+          Render->>Badge: drawRegionBadge(ctx, regionBadges['gang'], isHover=true)
+          Badge->>Canvas: 둥근 알약형 뱃지('📍 강원권') 및 그림자 렌더링
+      else 동일 권역 내 단순 이동
+          Note over Move, Render: 불필요한 재렌더링 스킵 (FPS 성능 최적화)
+      end
+
+      User->>Canvas: 마우스가 캔버스 바깥으로 이탈 (mouseleave)
+      Canvas->>Render: renderMap(currentActiveRegion, null)
+      Render->>Canvas: 호버 하이라이트 제거 및 원래 선택(Active) 상태 복원
+  ```
+
+---
+
+#### ③ 반응형 레이아웃 및 스크롤 고정 (Sticky)
 - **Sticky 고정 스크롤 레이아웃**:
-  - 상품 목록이 길어져 페이지를 아래로 스크롤해도 좌측의 지도와 탭 영역이 뷰포트 상단에 안정적으로 고정(`position: sticky`)
+  - 상품 목록이 길어져 페이지를 아래로 스크롤해도 좌측의 지도와 탭 영역이 뷰포트 상단에 안정적으로 고정(`position: sticky`)되어 다른 권역으로의 즉각적인 전환을 보장합니다.
 - **3단계 반응형 최적화**:
   - **데스크톱 (1025px 이상)**: 좌측 지도(330px 고정) + 우측 2열 상품 그리드
   - **태블릿 (769px ~ 1024px)**: 좌측 지도(320px 고정) + 우측 1열 상품 그리드
@@ -225,7 +325,10 @@
 | **Database** | SQLite 3 | 로컬 개발 및 파일 기반 관계형 데이터베이스 |
 | | (확장 가능) MySQL / MariaDB | 운영 전환 지원을 위한 SQLAlchemy 표준 스키마 설계 |
 | **Payment** | PortOne V2 API | 전자결제 모듈 연동 (**테스트 편의를 위해 Comment/Mock 처리**) |
+| **Test Automation** | Playwright (`@playwright/test`) | E2E 브라우저 자동화 테스트 프레임워크 (Chromium, Firefox, WebKit 멀티 브라우저 & UI 모드 지원) |
+| | Node.js & npm | 테스트 런너 실행 환경 및 패키지 관리 |
 | **DevOps & Tool** | Git | 소스 코드 버전 관리 |
+| | GitHub Actions | CI 자동화 테스트 파이프라인 연동 (`playwright.yml`) |
 | | python-dotenv | 환경 변수 관리 (`.flaskenv`) |
 
 ### 💡 주요 기술 적용 세부 내역 (Technical Highlights)
@@ -254,6 +357,18 @@
 
 ```text
 div-flask/
+├── playwright.config.js          # Playwright E2E 통합 테스트 설정 (Flask 웹서버 자동 구동, 브라우저/리포트 설정)
+├── package.json                  # Node.js 테스트 스크립트 및 @playwright/test 의존성 정의
+├── .github/                      # CI/CD 자동화 파이프라인
+│   └── workflows/
+│       └── playwright.yml        # GitHub Actions E2E 자동화 테스트 워크플로우
+├── tests/                        # Playwright E2E 시나리오별 자동화 테스트 스위트 (JavaScript)
+│   ├── 01_home_and_navigation.spec.js        # 메인 홈 UI, GNB 헤더, 권역 퀵 이동, 다국어 드롭다운 검증
+│   ├── 02_product_search_and_filter.spec.js  # 권역 지도/탭 필터링, 실시간 검색, 검색 결과 없음 안내
+│   ├── 03_auth_and_user.spec.js              # 회원가입, 아이디 중복확인 AJAX, 로그인/로그아웃 라이프사이클
+│   ├── 04_order_reservation.spec.js          # 비회원/회원 예약 신청, 연계 숙박(호텔/민박) 필터, 결제 연동
+│   ├── 05_notice_and_cs.spec.js              # 공지사항 카테고리 필터/검색, 고객센터 FAQ 인증 보호
+│   └── 06_review_lifecycle.spec.js           # 비로그인 후기 블러/오버레이, 예약 기반 리뷰 작성/수정/삭제 CRUD
 ├── config.py                     # 데이터베이스 URI, 시크릿 키 등 기본 설정 파일
 ├── requirements.txt              # 파이썬 의존성 패키지 명세서
 ├── seed_database.py              # 회원, 96개 여행 상품, 공지사항, 초기 주문/리뷰 시딩 스크립트
@@ -536,11 +651,107 @@ python -m flask run --host=127.0.0.1 --port=5000
 
 ---
 
-## 🧪 기능 검증 및 시험 완료 항목
+## 🧪 테스트 및 기능 검증 완료 항목 (Playwright E2E 포함)
 
-프로젝트의 안정적인 구동과 사용자 경험을 검증하기 위해 화면별 핵심 기능 및 인터랙션에 대한 단위/통합 테스트 및 검증을 완료하였습니다.
+본 프로젝트는 서비스의 안정성과 핵심 사용자 시나리오의 완결성을 보장하기 위해 **Playwright 기반의 크로스 브라우저 E2E(End-to-End) 자동화 테스트 스위트**와 **화면별 정밀 수동 검증 체계**를 모두 구축하여 철저한 품질 검증을 수행하고 있습니다.
 
-### 1. Main 화면
+---
+
+### 8.1 Playwright E2E 자동화 테스트 환경 구축 및 실행 가이드
+
+Playwright Test(`@playwright/test` v1.64+)를 통해 메인 탐색, 상품 필터링, 회원 인증, 예약 및 결제, 공지사항, 리뷰 라이프사이클에 이르는 전체 비즈니스 로직을 브라우저 수준에서 자동으로 검증합니다.
+
+#### 1. 테스트 아키텍처 및 특징
+- **Flask 서버 자동 기동 (`webServer`)**:
+  - `playwright.config.js`에 설정된 `webServer` 옵션에 따라 테스트 실행 시 로컬 파이썬 가상환경(`.venv\Scripts\python.exe -m flask --app pybo run --port 5000`)으로 Flask 백엔드 서버가 백그라운드에서 자동 구동되며, `http://127.0.0.1:5000` 헬스체크 완료 후 테스트가 진행됩니다. 이미 서버가 켜져 있는 경우 `reuseExistingServer: true`로 즉시 연결됩니다.
+- **멀티 브라우저 지원**:
+  - Chromium(Google Chrome), Firefox, WebKit(Safari) 3대 브라우저 엔진 지원.
+- **풍부한 디버깅 및 시각화**:
+  - 테스트 실행 중 오류 발생 여부와 무관하게 `trace: 'on'`, `screenshot: 'on'` 설정이 적용되어 테스트 타임라인, 네트워크 패킷, DOM 스냅샷 및 스크린샷이 자동 기록됩니다.
+  - 대화형 UI 모드(`--ui`)를 통해 단계별 화면 변화를 실시간으로 확인하고 디버깅할 수 있습니다.
+
+#### 2. 사전 필수 요구 사항 (Node.js 환경 구축)
+본 E2E 테스트 스위트는 Node.js 환경에서 구동됩니다. 테스트를 실행하기 전 로컬 PC에 Node.js(LTS 권장)가 설치되어 있어야 합니다.
+
+> [!IMPORTANT]
+> **Windows 환경 Node.js 설치 안내**:
+> 1. **winget 명령어 설치 (가장 간편)**:
+>    ```powershell
+>    winget install OpenJS.NodeJS.LTS
+>    ```
+> 2. **공식 웹사이트 설치**: [Node.js 공식 홈페이지(nodejs.org)](https://nodejs.org/)에서 **LTS(안정화 버전)** 다운로드 및 설치.
+> 3. **설치 후 필수 조치**: 환경 변수(PATH) 갱신을 위해 **열려 있는 터미널 창과 VS Code를 완전히 닫고 다시 실행**합니다.
+
+#### 3. 패키지 설치 및 브라우저 엔진 다운로드
+프로젝트 루트 디렉터리(`div-flask`)에서 다음 명령어를 실행합니다.
+```bash
+# 1. package.json에 정의된 @playwright/test 의존성 설치
+npm install
+
+# 2. Playwright 전용 브라우저 엔진(Chromium, Firefox, WebKit) 설치
+npx playwright install
+```
+
+#### 4. 테스트 실행 명령어 모음
+상황과 목적에 따라 아래 명령어로 자동화 테스트를 실행할 수 있습니다.
+
+| 실행 목적 | CLI 명령어 | npm 스크립트 | 설명 |
+| :--- | :--- | :--- | :--- |
+| **빠른 단일 테스트** | `npx playwright test --project=chromium` | `npm run test:chromium` | Chromium 브라우저 기반 헤드리스(백그라운드) 초고속 실행 |
+| **브라우저 화면 보기** | `npx playwright test --headed --project=chromium` | `npm run test:headed` | 실제 브라우저 창이 뜨며 테스트가 진행되는 과정을 직접 눈으로 확인 |
+| **대화형 UI 모드 (추천)** | `npx playwright test --ui` | `npm run test:ui` | 인터랙티브 GUI 창에서 파일별/시나리오별 재생, 타임라인 분석, DOM 검사 |
+| **전체 브라우저 일괄 검증** | `npx playwright test` | `npm test` | Chromium, Firefox, WebKit 3개 브라우저 전체 대상 병렬 종합 테스트 |
+| **결과 HTML 리포트 열람** | `npx playwright show-report` | `npm run test:report` | 직전 테스트 실행 결과 요약, 스크린샷, 실패 원인 리포트 웹뷰어 오픈 |
+
+#### 5. 자주 발생하는 오류 및 트러블슈팅 (FAQ)
+- **Q1. `playwright` 또는 `node` 명령어가 인식되지 않는 경우 (`CommandNotFoundException`)**:
+  - 원인: Node.js가 설치되지 않았거나 시스템 환경 변수(PATH)에 등록되지 않았기 때문입니다.
+  - 조치: Node.js LTS 버전을 설치한 후, 반드시 **터미널/VS Code를 재시작**하여 새 PATH를 반영합니다.
+- **Q2. `Executable doesn't exist at ... (browser not found)` 에러 발생 시**:
+  - 원인: Playwright 브라우저 바이너리가 내려받아지지 않았습니다.
+  - 조치: `npx playwright install` 명령어를 실행하여 브라우저를 설치합니다.
+- **Q3. Flask 웹서버 연결 실패 (`Connection refused`)**:
+  - 원인: `.venv\Scripts\python.exe` 가상환경 경로가 올바르지 않거나 포트 충돌이 발생한 경우입니다.
+  - 조치: 가상환경 생성이 정상적인지 확인하거나, 별도 터미널에서 `flask run`을 미리 실행해둔 후 테스트를 시작하면 기존 서버에 자동 연결(`reuseExistingServer`)됩니다.
+
+---
+
+### 8.2 시나리오별 6대 E2E 자동화 테스트 스위트 명세
+
+`tests/` 디렉터리에 위치한 6개의 모듈형 테스트 스펙은 서비스의 전 영역을 촘촘히 검증합니다.
+
+| 테스트 스펙 파일 | 주요 검증 영역 | 상세 테스트 시나리오 |
+| :--- | :--- | :--- |
+| **`01_home_and_navigation.spec.js`** | 메인 홈 & 헤더 네비게이션 | 1. 메인 타이틀, 브랜드 로고, 슬로건 가시성 확인<br>2. 상단 유틸리티 메뉴 (로그인, 예약확인, 고객센터) 링크 활성화 검증<br>3. 다국어 선택 드롭다운 및 지원 언어(한국어, 영어, 일본어, 중국어) 목록 표시 확인<br>4. 메인 6대 권역(수도권, 강원, 충청, 경상, 전라, 제주) 퀵 버튼 클릭 시 해당 권역 URL 및 탭으로의 즉시 이동 검증 |
+| **`02_product_search_and_filter.spec.js`** | 권역별 탐색 & 통합 검색 | 1. 전체 및 6대 권역 탭 전환 시 권역별 상품 목록 동적 필터링 검증<br>2. 키워드 검색 후 권역 탭 선택 시 해당 권역 내 결과만 안정적으로 출력하는지 검증<br>3. 키워드 검색 시 해당 권역에 결과가 없을 경우 검색 결과 없음 메시지 노출 확인<br>4. 임의의 무효 키워드 입력 시 빈 결과 안내 문구 출력 확인<br>5. 상품 상세 페이지 진입 및 상세 정보, 타임라인, Google Maps, 예약 버튼 가시성 검증 |
+| **`03_auth_and_user.spec.js`** | 회원 인증 & 계정 라이프사이클 | 1. 회원가입 페이지 필수 폼 렌더링 및 아이디 중복 확인 AJAX 비동기 통신 검증<br>2. 미존재 사용자/비밀번호 불일치 시 로그인 실패 예외 처리 및 에러 메시지 검증<br>3. 정상 로그인 성공 후 GNB 사용자명 표시 및 로그아웃 전체 라이프사이클 검증 |
+| **`04_order_reservation.spec.js`** | 예약 신청 & 숙박 필터 | 1. 비회원 게스트 예약 화면 기본 필드 렌더링 및 4대 약관 일괄 동의 동작 확인<br>2. 회원 로그인 상태 예약 시 연계 숙박(호텔/민박) 필터 탭 전환 및 숙박 요금 실시간 합산 검증<br>3. 예약 내역 조회(`/order/lookup`) 페이지 정상 접근 및 렌더링 확인 |
+| **`05_notice_and_cs.spec.js`** | 공지사항 & 고객센터 보호 | 1. 공지사항 카테고리(시스템, 공모전, 투어안내, 이벤트, 안내) 탭 필터링 및 목록 렌더링 검증<br>2. 공지사항 키워드 검색 기능 동작 확인<br>3. 비로그인 사용자의 고객센터 FAQ/1:1 질문 접근 시 로그인 페이지 자동 리다이렉트 보호 검증 |
+| **`06_review_lifecycle.spec.js`** | 후기 보안 & CRUD 라이프사이클 | 1. 비로그인 상태에서 메인 화면 여행 후기 블러(`blur`) 및 로그인 유도 오버레이 마스크 검증<br>2. 비로그인 상태에서 후기 메뉴 진입 시 로그인 페이지 안전 리다이렉트 검증<br>3. 로그인 사용자의 실제 예약 기반 여행 후기 등록(Create) 검증<br>4. 등록된 후기에 대해 '수정' 버튼 노출 및 별점/내용 수정(Update) 반영 검증<br>5. 등록된 후기에 대해 '삭제' 버튼 노출 및 삭제 확인 팝업 후 즉시 삭제(Delete) 처리 검증 |
+
+---
+
+### 8.3 CI/CD GitHub Actions 자동화 연동
+
+원격 저장소(`.github/workflows/playwright.yml`)를 통해 지속적 통합(CI) 환경에서도 모든 E2E 테스트가 자동 실행됩니다.
+
+- **트리거 시점**: `main`, `master` 브랜치로의 코드 `push` 또는 `pull_request` 발생 시
+- **실행 환경**: 최신 Ubuntu 가상 환경 (`ubuntu-latest`)
+- **수행 단계**:
+  1. 리포지토리 체크아웃 (`actions/checkout@v4`)
+  2. Node.js LTS 환경 자동 구성 (`actions/setup-node@v4`)
+  3. 무결성 의존성 설치 (`npm ci`)
+  4. 브라우저 엔진 바이너리 및 시스템 라이브러리 설치 (`npx playwright install --with-deps`)
+  5. Playwright E2E 테스트 전체 자동 실행 (`npx playwright test`)
+  6. 테스트 결과 아티팩트(`playwright-report/`) 자동 업로드 (30일 보관 및 다운로드 지원)
+
+---
+
+### 8.4 화면별 수동 기능 검증 완료 체크리스트
+
+자동화 테스트와 병행하여 실제 브라우저 환경에서 화면별 세부 인터랙션과 디자인 요소에 대한 수동 검증을 100% 완료하였습니다.
+
+#### 1. Main 화면
 - [x] **지역 퀵 버튼 이동**: 지역 버튼 클릭 시 Product 화면의 해당 지역(수도권, 강원, 충청, 경상, 전라, 제주)으로 정상 이동하는지 확인
 - [x] **공지사항 연동**: 메인 화면 공지사항 항목 클릭 시 공지사항 화면의 해당 아코디언 위치로 이동 및 자동 펼침 열람이 가능한지 확인
 - [x] **타임딜 & 리뷰 섹션 가시성 및 반응형**:
@@ -548,7 +759,7 @@ python -m flask run --host=127.0.0.1 --port=5000
   - [x] 브라우저 창 크기(Window size)가 줄어들었을 때 레이아웃 깨짐 없이 잘 보이는지 확인 (비로그인 사용자 보호 블러 오버레이 포함)
 - [x] **상단 헤더 검색 전환**: 헤더 검색창에서 검색 Button(또는 Enter)이 클릭된 경우 Product 화면으로 전환되며 검색 결과가 정상 연동되는지 확인
 
-### 2. Product 화면 (권역별 상품 목록)
+#### 2. Product 화면 (권역별 상품 목록)
 - [x] **지역별 탭 필터링**: 지역별 선택 시 해당 지역 여행 상품 정보만 정상적으로 필터링되어 보이는지 확인
 - [x] **대화형 지도 인터랙션**:
   - [x] 지도 클릭 시 해당 지역 정보만 동기화되어 보이는지 확인
@@ -562,14 +773,14 @@ python -m flask run --host=127.0.0.1 --port=5000
   - [x] 권역 출력(탭 전환) 시 해당 권역 내에서만 안정적으로 탐색되는지 확인
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 3. 세부 Product 화면 (상품 상세 및 일정)
+#### 3. 세부 Product 화면 (상품 상세 및 일정)
 - [x] **탭별 상세 정보 전환**: Tab 메뉴에서 일정 안내 / 상세 일정 타임라인 / 지도 보기(Google Maps) / 출발 전 정보가 각각 정상적으로 잘 보이는지 확인
 - [x] **회원 할인 가격 표시**: 일반 판매 금액과 회원 로그인(User login) 시 15% 할인가가 정상적으로 적용 및 표시되는지 확인
 - [x] **비로그인 후기 블러 & 오버레이**: 비로그인 상태에서 여행자 후기 목록이 블러(`blur`) 처리되고 "로그인이 필요한 서비스입니다." 오버레이가 정상 노출되며 클릭 시 로그인으로 이동하는지 확인
 - [x] **상품 추천(좋아요) 토글**: 로그인 상태에서 추천하기 클릭 시 추천완료(❤️) 및 추천수 증가, 재클릭 시 추천 취소(♡)가 정상 반영되는지 확인 (`ProductLike` ORM)
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 4. 결제 화면 (예약 및 결제 진행)
+#### 4. 결제 화면 (예약 및 결제 진행)
 - [x] **숙박 연계 상품 예약**:
   - [x] 호텔 필터 선택 시 호텔 상품만 보이도록 정상 필터링되는지 확인
   - [x] 민박 필터 선택 시 민박 상품만 보이도록 정상 필터링되는지 확인
@@ -581,13 +792,13 @@ python -m flask run --host=127.0.0.1 --port=5000
   - [x] 필수 정보(성명, 연락처, 필수 약관 동의 등) 미입력 시 예약이 진행되지 않고 검증 안내가 표시되는지 확인
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 5. 예약 및 결제 완료 화면 (`/order/complete`)
+#### 5. 예약 및 결제 완료 화면 (`/order/complete`)
 - [x] **상단 브랜드 로고 마크 노출**: 완료 화면 상단 헤더에 기존 체스 기호(`♙`) 대신 길마중 시그니처 4색 브랜드 마크(`.logo-mark`)가 정상 출력되는지 확인
 - [x] **예약 요약 및 영수증 정보**: 주문번호, 결제 수단, 최종 결제 금액, 약관 동의 내역이 올바르게 표시되는지 확인
 - [x] **연계 숙박 및 동행인 명단**: 동행 여행객 명단과 연계 숙박 시설 정보가 누락 없이 출력되는지 확인
 - [x] **원클릭 액션 버튼**: 'Review 작성/수정', 'Review 삭제' 및 '상세 내역확인하기' 버튼이 정상 동작하는지 확인
 
-### 6. 예약 확인 화면 (`/order/lookup`)
+#### 6. 예약 확인 화면 (`/order/lookup`)
 - [x] **회원 예약 목록 조회**: 회원 Login 시에는 해당 가입자의 투어 및 연계 숙박 예약 목록 전체를 최신순 List로 정상 확인
 - [x] **Review 라이프사이클 관리**:
   - [x] 예약 내역에서 Review 작성이 가능한지 확인
@@ -596,7 +807,7 @@ python -m flask run --host=127.0.0.1 --port=5000
   - [x] User login이 되지 않은 비로그인 상태인 경우에는 Review 등록이 불가(로그인 필요 안내)한지 확인
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 7. Review 화면 (후기 상세 및 커뮤니티)
+#### 7. Review 화면 (후기 상세 및 커뮤니티)
 - [x] **본인 작성 후기 권한 및 수정/삭제 제어**:
   - [x] Login 시 해당 User가 작성한 Review의 경우 '수정' 및 '삭제' 버튼이 노출되는지 확인
   - [x] 수정 기능 클릭 시 기존 내용 및 별점을 정상적으로 수정할 수 있는지 확인
@@ -604,13 +815,13 @@ python -m flask run --host=127.0.0.1 --port=5000
   - [x] 삭제 완료 후 목록 및 상세 화면이 오류 없이 정상적으로 동작하는지 확인
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 8. 공지사항 화면 (`/notice`)
+#### 8. 공지사항 화면 (`/notice`)
 - [x] **카테고리별 분류 탭**: Category별(시스템, 공모전, 투어안내, 이벤트, 안내 등)로 정상 구분되어 보이는지 확인
 - [x] **키워드 탐색 결과**: 검색창 키워드 입력 시 일치하는 공지사항 탐색 결과가 정확히 보이는지 확인
 - [x] **아코디언 본문 열람**: 각 공지사항 세부 항목 클릭 시 내용이 매끄럽게 펼쳐져 잘 보이는지 확인
 - [x] **GNB 브랜드 로고 홈 링크**: 길마중 아이콘 클릭 시 Main 화면으로 정상 돌아가는지 확인
 
-### 9. 다국어 번역 시스템 (`/static/js/translate.js`)
+#### 9. 다국어 번역 시스템 (`/static/js/translate.js`)
 - [x] **원클릭 다국어 전환**: 한국어, 영어, 일본어, 중국어 전환 버튼 클릭 시 딜레이 없이 즉시 언어가 번역되는지 확인
 - [x] **커스텀 단어 오버라이드 (TreeWalker & MutationObserver)**: '수도권' 번역 시 긴 'metropolitan area' 대신 'metropolitan'으로 실시간 자동 치환되는지 확인
 - [x] **강제 번역 제외 검증**: 브랜드 고유명사 및 언어 메뉴(`translate="no"`, `.notranslate`)가 번역 왜곡 없이 원본 텍스트를 유지하는지 확인
