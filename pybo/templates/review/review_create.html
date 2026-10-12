@@ -5,7 +5,6 @@
 {% block content %}
 <div class="container my-5 review-container" style="max-width: 1000px;">
 
-    <!-- 알림 메시지 (Flash) -->
     {% for category, message in get_flashed_messages(with_categories=true) %}
     <div class="alert alert-{{ category }} alert-dismissible fade show mb-4 shadow-sm" role="alert">
         <span class="fw-semibold">{{ message }}</span>
@@ -13,7 +12,6 @@
     </div>
     {% endfor %}
 
-    <!-- 1. 상단: 제품 정보 카드 (review_detail과 동일한 구조 및 톤앤매너) -->
     <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: #ffffff; border: 1px solid #e2e8f0 !important;">
         <div class="row g-0">
             <div class="col-md-5">
@@ -68,7 +66,6 @@
         </div>
     </div>
 
-    <!-- 2. 중단: 여행자 후기 등록 폼 카드 -->
     <div class="card border rounded-4 shadow-sm mb-5 p-4" style="background-color: #ffffff; border: 1px solid #cbd5e1 !important;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom flex-wrap gap-2">
             <div>
@@ -97,7 +94,6 @@
         <form method="POST" action="{{ url_for('review.create', product_id=product.id, order_no=order_no or '') }}">
             {{ form.csrf_token }}
 
-            <!-- 별점 선택 -->
             <div class="mb-4">
                 <label for="rating" class="form-label fw-bold d-flex align-items-center gap-1 text-dark">
                     <span>⭐ 여행 만족도 (별점)</span>
@@ -115,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- 후기 제목 -->
             <div class="mb-4">
                 <label for="title" class="form-label fw-bold d-flex align-items-center gap-1 text-dark">
                     <span>📌 후기 제목</span>
@@ -126,7 +121,6 @@
                        value="{{ request.form.get('title', '') }}" required maxlength="150">
             </div>
 
-            <!-- 후기 상세 내용 -->
             <div class="mb-4">
                 <label for="content" class="form-label fw-bold d-flex align-items-center gap-1 text-dark">
                     <span>💬 후기 상세 내용</span>
@@ -137,7 +131,6 @@
                           required style="line-height: 1.7;">{{ request.form.get('content', '') }}</textarea>
             </div>
 
-            <!-- 하단 제출 컨트롤 -->
             <div class="d-flex justify-content-between align-items-center pt-3 border-top flex-wrap gap-2">
                 <div>
                     {% if not g.user %}
@@ -158,7 +151,6 @@
         </form>
     </div>
 
-    <!-- 3. 하단: 해당 여행지의 기존 여행자 후기 목록 영역 (review_detail 톤앤매너 동일) -->
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom flex-wrap gap-2">
@@ -227,7 +219,6 @@
         </div>
     </div>
 
-    <!-- 하단 버튼 컨트롤 -->
     <div class="row mt-5 mb-4">
         <div class="col-12 text-center">
             <a href="{{ url_for('review.list') }}" class="btn btn-primary px-4 me-2">후기 목록으로</a>
