@@ -95,13 +95,11 @@ def detail(product_id):
     if hasattr(g, 'user') and g.user:
         can_review = check_user_booked_product(g.user, product_id)
         user_review = Review.query.filter_by(user_id=g.user.id, product_id=product_id).first()
+        my_review = user_review
         if selected_review:
-            if selected_review.user_id == g.user.id:
-                is_my_review = True
-                my_review = selected_review
-        elif user_review:
-            is_my_review = True
-            my_review = user_review
+            is_my_review = (selected_review.user_id == g.user.id)
+        else:
+            is_my_review = (user_review is not None)
 
     return render_template(
         "review/review_detail.html",
