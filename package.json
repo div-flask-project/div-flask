@@ -24,6 +24,6 @@
   "homepage": "https://github.com/hongdonjoo70/div-flask#readme",
   "devDependencies": {
     "@playwright/test": "^1.64.0",
-    "@types/node": "^26.6.4"
+    "@types/node": "^26.6.5"
   }
 }
